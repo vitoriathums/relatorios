@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dias trabalhando com crachá</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding: 24px; background: #edf1ea; color: #163e31; font-family: Arial, Helvetica, sans-serif; }
+  main { width: min(100%, 850px); text-align: center; }
+  .placa { overflow: hidden; background: #fffef6; border: 3px solid #184c39; border-radius: 22px; box-shadow: 0 20px 60px #163e3114; }
+  header { background: #184c39; color: #fffef6; padding: 23px 20px; font-size: clamp(14px, 2.5vw, 20px); font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+  .contador { padding: 36px 20px 32px; }
+  .intro { margin: 0; font-size: clamp(22px, 4vw, 34px); }
+  .numero { display: block; margin: 10px 0 0; color: #184c39; font-size: clamp(100px, 23vw, 190px); line-height: 1.1; font-weight: 900; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .dias { margin: 0 0 20px; text-transform: uppercase; letter-spacing: .24em; font-size: 22px; font-weight: 700; }
+  h1 { margin: 0; font-size: clamp(25px, 4.5vw, 42px); line-height: 1.2; font-weight: 400; }
+  h1 strong { font-weight: 800; }
+  .recorde { padding: 24px 18px; border-top: 2px solid #184c39; background: #f1cf66; font-size: clamp(18px, 3vw, 27px); }
+  .recorde strong { font-size: 1.25em; white-space: nowrap; }
+  details { margin: 22px auto 0; max-width: 520px; color: #3d574b; }
+  summary { cursor: pointer; font-size: 14px; width: fit-content; margin: auto; padding: 8px; }
+  form { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; padding: 18px; margin-top: 10px; border: 1px solid #c7d3c9; border-radius: 12px; text-align: left; background: #ffffffb3; }
+  label { flex: 1 1 140px; font-size: 13px; }
+  input { width: 100%; margin-top: 7px; padding: 10px; border: 1px solid #9bb3a2; border-radius: 6px; font: inherit; font-size: 16px; }
+  button { border: 0; border-radius: 6px; padding: 12px 20px; background: #184c39; color: white; cursor: pointer; font-weight: 700; }
+  button:hover { background: #24664d; }
+  :focus-visible { outline: 3px solid #a16d00; outline-offset: 4px; }
+  .nota { flex-basis: 100%; margin: 0; font-size: 12px; line-height: 1.5; }
+  @media print { body { background: white; padding: 0; } details { display: none; } .placa { box-shadow: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="placa" aria-label="Contador de uso do crachá">
+    <header>Time de P.E e Projetos</header>
+    <div class="contador">
+      <p class="intro">Estamos há</p>
+      <span class="numero" id="dias">0</span>
+      <p class="dias" id="unidade">dias</p>
+      <h1>trabalhando <strong>com crachá</strong></h1>
+    </div>
+    <div class="recorde">Nosso recorde é de <strong><span id="recorde">0</span> <span id="unidade-recorde">dias</span></strong></div>
+  </section>
+  <details id="ajustes">
+    <summary>Editar contagem</summary>
+    <form id="formulario">
+      <label>Dias com crachá<input id="entrada-dias" type="number" min="0" max="999999" step="1" value="0" required></label>
+      <label>Recorde em dias<input id="entrada-recorde" type="number" min="0" max="999999" step="1" value="0" required></label>
+      <button type="submit">Salvar</button>
+      <p class="nota">Contagem manual. Os valores ficam salvos neste navegador. O recorde acompanha a contagem quando ela for maior.</p>
+    </form>
+  </details>
+  <p class="nota" id="aviso" role="status"></p>
+</main>
+<script>
+  // Altere os valores iniciais aqui, se preferir editar diretamente no HTML.
+  const valoresIniciais = { dias: 0, recorde: 0 };
+  const chave = 'contador-cracha-v1';
+  const campoDias = document.getElementById('entrada-dias');
+  const campoRecorde = document.getElementById('entrada-recorde');
+  const valido = n => Number.isInteger(n) && n >= 0 && n <= 999999;
+  function exibir(dias, recorde) {
+    recorde = Math.max(dias, recorde);
+    document.getElementById('dias').textContent = dias;
+    document.getElementById('recorde').textContent = recorde;
+    document.getElementById('unidade').textContent = dias === 1 ? 'dia' : 'dias';
+    document.getElementById('unidade-recorde').textContent = recorde === 1 ? 'dia' : 'dias';
+    campoDias.value = dias;
+    campoRecorde.value = recorde;
+    return { dias, recorde };
+  }
+  let valores = valoresIniciais;
+  try {
+    const salvo = JSON.parse(localStorage.getItem(chave));
+    if (salvo && valido(salvo.dias) && valido(salvo.recorde)) valores = salvo;
+  } catch (_) {}
+  exibir(valores.dias, valores.recorde);
+  document.getElementById('formulario').addEventListener('submit', event => {
+    event.preventDefault();
+    const dias = campoDias.valueAsNumber;
+    const recorde = campoRecorde.valueAsNumber;
+    if (!valido(dias) || !valido(recorde)) return;
+    const novos = exibir(dias, recorde);
+    const aviso = document.getElementById('aviso');
+    aviso.textContent = '';
+    try { localStorage.setItem(chave, JSON.stringify(novos)); }
+    catch (_) { aviso.textContent = 'Contagem atualizada. Este navegador não permitiu salvar os valores para a próxima abertura.'; }
+    document.getElementById('ajustes').open = false;
+  });
+</script>
+</body>
+</html>
