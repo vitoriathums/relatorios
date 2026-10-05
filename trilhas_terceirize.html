@@ -1,1 +1,254 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Relatório das Trilhas IA</title>
+<style>
+  /* Layout: cabeçalho verde da marca, números no topo, barra de filtro fixa, pessoas agrupadas por diretoria e clicáveis */
+  :root { --g:#108451; --g2:#075d3a; --ink:#17231c; --mut:#5f6c63; --line:#dbe6df; --bg:#f3f6f4; --surf:#ffffff; --surf2:#fafcfb; --row:#edf1ee; --track:#e8efeb;
+    --mint:#e7f6ee; --okfg:#087345; --warnbg:#fff3d7; --warnfg:#8a5600; --nobg:#f0f2f1; --nofg:#5f6a63; --missbg:#fdecea; --missfg:#a3322a; color-scheme:light; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,"Segoe UI",Arial,sans-serif; }
+  .wrap { max-width:1160px; margin:auto; padding-block:28px; padding-inline:28px; }
+  .hero { background:linear-gradient(135deg,#061a10,#0a7146); color:#fff; border-radius:28px; padding:36px 40px; position:relative; overflow:hidden; }
+  .hero::after { content:'+'; position:absolute; right:22px; top:-62px; font-size:250px; font-weight:900; color:#ffffff0b; }
+  .brand { font-size:35px; font-weight:900; letter-spacing:2px; } .brand span { color:#3dc181; }
+  .eye { margin-top:18px; color:#b3e4cd; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
+  h1 { font-size:38px; line-height:1.08; margin:8px 0 12px; text-wrap:balance; } h2 { margin:0 0 7px; text-wrap:balance; } h3 { margin:10px 0 6px; }
+  .sub { max-width:900px; color:#d7ede2; line-height:1.6; margin:0; }
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:18px 0; }
+  .kpi, section { background:var(--surf); border:1px solid var(--line); border-radius:20px; }
+  .kpi { padding:18px; } .kpi b { display:block; font-size:30px; color:var(--g); font-variant-numeric:tabular-nums; } .kpi span,.note { color:var(--mut); font-size:12px; line-height:1.5; }
+  section { padding:24px; margin:18px 0; min-width:0; }
+  .trail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-top:16px; }
+  .trail-card { border:1px solid var(--line); border-radius:18px; padding:20px; }
+  .trail-card ol { padding-left:20px; margin:8px 0; } .trail-card li { padding:4px 0; } .trail-card li span { float:right; color:var(--mut); font-variant-numeric:tabular-nums; }
+  .flag { display:inline-block; background:var(--warnbg); color:var(--warnfg); padding:5px 9px; border-radius:999px; font-size:11px; font-weight:800; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-top:15px; }
+  .card { border:1px solid var(--line); border-radius:16px; padding:18px; } .big { font-size:34px; font-weight:900; color:var(--g); font-variant-numeric:tabular-nums; }
+  .card p { margin:0; color:var(--mut); font-size:13px; }
+  .bar { height:10px; background:var(--track); border-radius:99px; overflow:hidden; margin:10px 0; } .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--g2),#42bb7d); }
+  .statusbar { position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--surf); border:1px solid var(--line); border-radius:16px; padding:12px 14px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; box-shadow:0 6px 18px #17231c14; margin:18px 0; }
+  .lbl { font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; color:var(--mut); }
+  .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+  .seg button { border:0; background:transparent; color:var(--ink); font:inherit; font-size:13px; font-weight:700; padding:8px 14px; cursor:pointer; }
+  .seg button + button { border-left:1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background:var(--g); color:#fff; }
+  .statusbar input, .statusbar select { padding:8px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surf); color:var(--ink); font:inherit; font-size:13px; }
+  .statusbar input { flex:1 1 200px; min-width:0; }
+  button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible { outline:2px solid var(--g2); outline-offset:2px; }
+  .count { margin-left:auto; font-size:12px; color:var(--mut); font-variant-numeric:tabular-nums; }
+  .dir-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:15px; }
+  .dir-card { border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .dir-card h3 { margin:0; font-size:15px; } .dir-card .lead { color:var(--mut); font-size:12px; }
+  .dir-row { display:grid; grid-template-columns:28px 1fr auto; gap:8px; align-items:center; font-size:12px; font-variant-numeric:tabular-nums; }
+  .dir-row .bar { margin:0; height:8px; }
+  details.group { background:var(--surf2); border:1px solid var(--line); border-radius:15px; margin:12px 0; }
+  details.group > summary { cursor:pointer; padding:16px 18px; font-weight:800; color:var(--g); list-style:none; display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  details.group > summary small { color:var(--mut); font-weight:600; }
+  details.group > summary::after { content:'⌄'; margin-left:auto; font-size:20px; line-height:1; } details.group[open] > summary::after { content:'⌃'; }
+  summary::-webkit-details-marker { display:none; }
+  .inside { padding:0 18px 18px; min-width:0; }
+  .blockbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:2px 0 12px; }
+  .blockbar .seg button { padding:6px 12px; font-size:12px; }
+  .people { display:flex; flex-direction:column; gap:8px; }
+  details.person { background:var(--surf); border:1px solid var(--line); border-radius:14px; }
+  details.person[open] { border-color:#b9d6c6; box-shadow:0 4px 14px #17231c0f; }
+  details.person > summary { list-style:none; cursor:pointer; padding:12px 14px; display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1.3fr) minmax(0,1fr) 16px; gap:8px 16px; align-items:center; }
+  details.person > summary::after { content:'›'; font-size:20px; color:var(--mut); transition:transform .15s; justify-self:end; }
+  details.person[open] > summary::after { transform:rotate(90deg); }
+  .who b { display:block; font-size:14px; } .who span { color:var(--mut); font-size:12px; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { border-radius:999px; padding:4px 9px; font-size:11px; font-weight:800; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .chip.ok { background:var(--mint); color:var(--okfg); } .chip.part { background:var(--warnbg); color:var(--warnfg); } .chip.zero { background:var(--nobg); color:var(--nofg); }
+  .prog { font-size:12px; font-variant-numeric:tabular-nums; } .prog .bar { margin:5px 0 0; height:7px; }
+  .prog b.okt { color:var(--okfg); } .prog b.pend { color:var(--missfg); }
+  .detail { border-top:1px solid var(--row); padding:14px; display:flex; flex-direction:column; gap:12px; }
+  .missing { background:var(--missbg); color:var(--missfg); border-radius:12px; padding:10px 12px; font-size:13px; line-height:1.5; }
+  .alldone { background:var(--mint); color:var(--okfg); border-radius:12px; padding:10px 12px; font-size:13px; font-weight:700; }
+  .tgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+  .tbox { border:1px solid var(--line); border-radius:12px; padding:12px; min-width:0; }
+  .tbox h4 { margin:0 0 8px; font-size:13px; display:flex; justify-content:space-between; gap:8px; } .tbox h4 span { color:var(--mut); font-variant-numeric:tabular-nums; }
+  .tbox ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+  .tbox li { display:flex; justify-content:space-between; gap:8px; font-size:13px; }
+  .tbox li.miss { color:var(--missfg); font-weight:700; }
+  .mk { font-size:11px; font-weight:800; border-radius:999px; padding:2px 8px; white-space:nowrap; }
+  li.ok .mk { background:var(--mint); color:var(--okfg); } li.miss .mk { background:var(--missbg); color:var(--missfg); }
+  .extra { font-size:12px; color:var(--mut); }
+  .empty { color:var(--mut); font-size:13px; padding:10px 0; margin:0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; } th,td { padding:10px; border-bottom:1px solid var(--row); text-align:left; } th { font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); }
+  td { font-variant-numeric:tabular-nums; }
+  .tablewrap { overflow-x:auto; }
+  footer { text-align:center; color:var(--mut); font-size:11px; padding:10px; }
+  @media (max-width:900px) { .kpis { grid-template-columns:repeat(2,1fr); } .wrap { padding-inline:16px; padding-block:16px; } .hero { padding:26px 22px; } h1 { font-size:29px; } section { padding:18px; }
+    details.person > summary { grid-template-columns:minmax(0,1fr) 16px; } details.person > summary .chips, details.person > summary .prog { grid-column:1; } }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
 
+<main class="wrap">
+  <header class="hero">
+    <div class="brand">TERCEIRIZE<span>+</span></div>
+    <div class="eye">Programa de IA Corporativa</div>
+    <h1>Acompanhamento das Trilhas T1 a T5</h1>
+    <p class="sub">Situação por pessoa e por curso, conforme a planilha de controle. Clique em uma pessoa para ver o que ela já fez e o que falta. Relatório atualizado em 01/10/2026.</p>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section>
+    <h2>Quem faz cada trilha</h2>
+    <p class="note">T1 e T2 valem para todos, exceto cargos de T.I. T3 é exclusiva do Analista de Projetos. T4 e T5 valem apenas para cargos com T.I no nome. Um curso que aparece em mais de uma trilha conta como feito em todas elas.</p>
+    <div class="trail-grid" id="trail-grid"></div>
+  </section>
+
+  <section>
+    <h2>Progresso por trilha</h2>
+    <p class="note">Cada trilha conta apenas quem precisa fazê-la.</p>
+    <div class="cards" id="progress"></div>
+  </section>
+
+  <div class="statusbar" role="group" aria-label="Filtros">
+    <span class="lbl">Status</span>
+    <div class="seg" id="status-seg"><button type="button" data-v="all" aria-pressed="true">Todos</button><button type="button" data-v="pend" aria-pressed="false">Pendentes</button><button type="button" data-v="done" aria-pressed="false">Concluídos</button></div>
+    <select id="trail-filter" aria-label="Trilha do filtro"><option value="any">Qualquer trilha</option><option value="t1">T1</option><option value="t2">T2</option><option value="t3">T3</option><option value="t4">T4</option><option value="t5">T5</option></select>
+    <select id="dir-filter" aria-label="Diretoria"><option value="">Todas as diretorias</option></select>
+    <input id="search" type="search" placeholder="Buscar nome ou cargo" aria-label="Buscar nome ou cargo">
+    <span class="count" id="status-count"></span>
+  </div>
+
+  <section>
+    <h2>Por diretoria</h2>
+    <p class="note">Cada diretoria vê o próprio time. Abra a diretoria e clique na pessoa para ver os cursos que faltam. O filtro dentro da diretoria vale só para ela.</p>
+    <div class="dir-grid" id="dir-cards"></div>
+    <div id="dir-lists" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>Diretoria</h2>
+    <div class="people" id="directors"></div>
+  </section>
+
+  <section>
+    <h2>Gerentes e coordenadores corporativos</h2>
+    <p class="note">Gerente de Filiais permanece nesta lista. Gerentes e coordenadores de filial aparecem apenas na sua diretoria.</p>
+    <div class="people" id="management"></div>
+  </section>
+
+  <section>
+    <h2>Detalhamento por trilha</h2>
+    <p class="note">Quem concluiu e quem ainda tem cursos pendentes em cada trilha.</p>
+    <div id="lists"></div>
+  </section>
+
+  <footer>Atualizado em 01/10/2026 · Fonte: planilha Dados_trilhas fornecida pelo usuário</footer>
+</main>
+
+<script>
+const COURSES = {"prompt": {"nome": "Engenharia de Prompt", "min": 63}, "chatgpt": {"nome": "ChatGPT", "min": 94}, "notebooklm": {"nome": "NotebookLM", "min": 82}, "perplexity": {"nome": "Perplexity", "min": 69}, "claude_ai": {"nome": "Claude AI", "min": 51}, "cowork": {"nome": "Claude Cowork", "min": 29}, "gemini": {"nome": "Gemini", "min": 56}, "design": {"nome": "Claude Design", "min": 47}, "chrome": {"nome": "Claude in Chrome", "min": 51}, "sql": {"nome": "SQL com IA", "min": 55}, "make": {"nome": "Make", "min": 81}, "firecrawl": {"nome": "Firecrawl", "min": 34}, "github": {"nome": "GitHub", "min": 68}, "cursor": {"nome": "Cursor", "min": 90}, "claude_code": {"nome": "Claude Code", "min": 52}, "claude_api": {"nome": "Claude API", "min": 42}, "openai_api": {"nome": "OpenAI API", "min": 44}, "supabase": {"nome": "Supabase", "min": 172}, "lovable": {"nome": "Lovable", "min": 248}, "railway": {"nome": "Railway", "min": 26}, "antigravity": {"nome": "Google Antigravity", "min": 118}, "n8n": {"nome": "n8n", "min": 306}, "gpt_agents": {"nome": "GPT Agents", "min": 48}, "whatsapp": {"nome": "WhatsApp API", "min": 85}, "evolution": {"nome": "Evolution API", "min": 31}, "openclaw": {"nome": "OpenClaw", "min": 93}, "manus": {"nome": "Manus", "min": 95}};
+const TRAILS = {"t1": ["prompt", "chatgpt", "notebooklm", "perplexity"], "t2": ["claude_ai", "cowork", "gemini", "design"], "t3": ["claude_ai", "cowork", "chrome", "sql", "make", "gemini", "firecrawl"], "t4": ["github", "cursor", "claude_code", "claude_api", "openai_api", "supabase", "lovable", "railway", "sql", "antigravity"], "t5": ["make", "n8n", "gpt_agents", "whatsapp", "evolution", "openclaw", "manus"]};
+const users = [{"nome": "Aldiney Duarte", "email": "aldiney.duarte@terceirizemais.com.br", "cargo": "Gerente de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Alessandra Maria Da Costa Demetrio", "email": "alessandra.demetrio@terceirizemais.com.br", "cargo": "Gerente de DP", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Aline Cappelli", "email": "aline.cappelli@terceirizemais.com.br", "cargo": "Gerente de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Aline Chamerk", "email": "aline.chamerk@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["claude_ai", "cowork", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Aline Goulart Barbieri", "email": "aline.barbieri@terceirizemais.com.br", "cargo": "Coordenadora Foods", "diretoria": "Diretoria Foods", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Ana Araujo", "email": "ana.araujo@terceirizemais.com.br", "cargo": "Estagiaria de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["claude_api", "claude_code", "cursor", "github", "openai_api", "sql", "supabase"], "extra": []}, {"nome": "Anderson", "email": "anderson.ribeiro@terceirizemais.com.br", "cargo": "Especialista De Licitações", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Andre Gilson Desoti", "email": "contratos@costaoesteserv.com.br", "cargo": "Gerente de Contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "André Mantovani", "email": "andre.mantovani@terceirizemais.com.br", "cargo": "Especialista Supply chain", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "André Staffen", "email": "andre.staffen@terceirizemais.com.br", "cargo": "Gerente de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Anne Zanco", "email": "anne.zanco@terceirizemais.com.br", "cargo": "Analista de Contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Artur Rossi", "email": "artur.rossi@terceirizemais.com.br", "cargo": "Especialista de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["make"], "extra": []}, {"nome": "C. Weslei de Freitas", "email": "carlos.freitas@terceirizemais.com.br", "cargo": "Gerente de Filiais", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Carlos Lima", "email": "", "cargo": "Gerente de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": [], "extra": []}, {"nome": "Celio Soares", "email": "celio.soares@terceirizemais.com.br", "cargo": "Coordenador de contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Chalissa Gomes", "email": "chalissa.gomes@terceirizemais.com.br", "cargo": "Analista de SGQ/SGI", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Clayton Rosa", "email": "clayton.rosa@terceirizemais.com.br", "cargo": "Gerente Comercial", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "prompt"], "extra": []}, {"nome": "Dener Santos", "email": "dener.santos@terceirizemais.com.br", "cargo": "Estagiario de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["antigravity", "claude_api", "claude_code", "cursor", "evolution", "github", "gpt_agents", "lovable", "make", "manus", "n8n", "openai_api", "openclaw", "railway", "sql", "supabase", "whatsapp"], "extra": []}, {"nome": "Denise Dias Silva", "email": "denise.silva@terceirizemais.com.br", "cargo": "Gerente de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Diogo Escher", "email": "diogo.escher@terceirizemais.com.br", "cargo": "Controler", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Débora Maciel", "email": "debora.maciel@terceirizemais.com.br", "cargo": "Especialista de Faturamento", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Eduardo Santos", "email": "eduardo.santos@terceirizemais.com.br", "cargo": "Coordenador de Frotas", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Eric Nunes", "email": "eric.nunes@terceirizemais.com.br", "cargo": "Analista de R&S", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Everton Pardinho", "email": "everton.pardinho@terceirizemais.com.br", "cargo": "Analista de DHO", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "prompt"], "extra": []}, {"nome": "Fernando Adriano Gomes", "email": "fernando.gomes@terceirizemais.com.br", "cargo": "Gerente Supply chain", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Gabriel Foscarini", "email": "gabriel.foscarini@terceirizemais.com.br", "cargo": "Estagiário de Planejamento", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Gabriel Leal Arnhold", "email": "gabriel.leal@terceirizemais.com.br", "cargo": "Auxiliar de contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Gabriel Penasso", "email": "gabriel.penasso@terceirizemais.com.br", "cargo": "Especialista de sistema de Folha", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "prompt"], "extra": []}, {"nome": "Gabriela Galvan", "email": "gabriela.galvan@terceirizemais.com.br", "cargo": "Especialista De Licitações", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Gislaine Rosa", "email": "faturamento@costaoesteserv.com.br", "cargo": "Especialista de Faturamento", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Givanildo Ferreira", "email": "givanildo.ferreira@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Guilherme Barbieri", "email": "guilherme.barbieri@terceirizemais.com.br", "cargo": "Head Foods", "diretoria": "Diretoria Foods", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Guilherme Filho", "email": "guilherme.filho@terceirizemais.com.br", "cargo": "Analista de Calculo", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Guilherme Souza", "email": "guilherme.souza@terceirizemais.com.br", "cargo": "Especialista de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["evolution", "github", "gpt_agents", "make", "manus", "n8n", "openclaw", "whatsapp"], "extra": []}, {"nome": "Jhulye Toncix", "email": "jhulye.toncix@terceirizemais.com.br", "cargo": "Analista de SGQ/SGI", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Joao Bettinelli", "email": "joao.bettinelli@terceirizemais.com.br", "cargo": "Especialista CCO", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Jocasta Oliveira", "email": "jocasta.oliveira@terceirizemais.com.br", "cargo": "Coordenadora De Admissão", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Jose Eliseu Prado", "email": "jose.prado@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Josiane Henrique", "email": "documentacao@costaoesteserv.com.br", "cargo": "Analista de contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "João Vitor Dysarz", "email": "joao.dysarz@terceirizemais.com.br", "cargo": "Analista De Projetos", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2", "t3"], "done": ["chatgpt", "chrome", "claude_ai", "cowork", "design", "firecrawl", "gemini", "make", "notebooklm", "perplexity", "prompt", "sql"], "extra": []}, {"nome": "Julian Lopes", "email": "julian.lopes@terceirizemais.com.br", "cargo": "Auxiliar Documental", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Juliana Domingues", "email": "juliana.domingues@terceirizemais.com.br", "cargo": "Assistente de contratos", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Juliane Batista", "email": "juliane.batista@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Juliano Liberato", "email": "juliano.liberato@terceirizemais.com.br", "cargo": "Coordenador Fiscal/Controladoria", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Justina Moreira", "email": "justina.moreira@terceirizemais.com.br", "cargo": "Coordenadora de Folha", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Kairon Nobrega Riguete", "email": "kairon.riguete@terceirizemais.com.br", "cargo": "Diretor Adm e financeiro", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Kelvin De Jesus Oliveira", "email": "kelvin.oliveira@terceirizemais.com.br", "cargo": "Assistente de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["cursor", "evolution", "make", "manus", "railway", "whatsapp"], "extra": []}, {"nome": "Lorena Xavier", "email": "lorena.xavier@terceirizemais.com.br", "cargo": "Coordenadora de Recisão", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Luan Sarmento", "email": "luan.sarmento@terceirizemais.com.br", "cargo": "Estagiario de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["gpt_agents", "make", "manus", "n8n", "whatsapp"], "extra": []}, {"nome": "Lucas Moraes", "email": "lucas.moraes@terceirizemais.com.br", "cargo": "Gerente Financeiro", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Lucelia Grabin", "email": "lucelia.grabin@terceirizemais.com.br", "cargo": "Diretora de RH", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "perplexity", "prompt"], "extra": []}, {"nome": "Luis Cerutti", "email": "luis.cerutti@terceirizemais.com.br", "cargo": "Analista de CCO", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["claude_ai", "cowork", "design"], "extra": []}, {"nome": "Luis Osorio", "email": "luis.osorio@terceirizemais.com.br", "cargo": "Auxiliar de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["cursor", "gpt_agents", "lovable", "n8n"], "extra": ["claude_ai", "prompt"]}, {"nome": "Luiz Henrique dos Santos", "email": "luiz.henrique@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Léia Kramer", "email": "leia.kramer@terceirizemais.com.br", "cargo": "Gerente de SGQ/SGI", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Mara Oliveira", "email": "mara.oliveira@terceirizemais.com.br", "cargo": "Gerente de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Marcos Domborovski", "email": "marcos.domborovski@terceirizemais.com.br", "cargo": "Assistente de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["antigravity", "claude_api", "claude_code", "cursor", "evolution", "github", "gpt_agents", "lovable", "make", "manus", "n8n", "openai_api", "openclaw", "railway", "sql", "supabase", "whatsapp"], "extra": []}, {"nome": "Marcos Eduardo", "email": "marcos.eduardo@terceirizemais.com.br", "cargo": "Auxiliar de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["claude_api", "claude_code", "cursor", "github", "openai_api", "railway"], "extra": ["claude_ai"]}, {"nome": "Michael Felipe Albertoni", "email": "michael.albertoni@terceirizemais.com.br", "cargo": "Gerente de Planejamento e projetos", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Milene Mirinho", "email": "milene.mirinho@terceirizemais.com.br", "cargo": "Coordenadora Juridica", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Márcio Leal", "email": "marcio.leal@terceirizemais.com.br", "cargo": "Gerente de SESMT", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Naiara França", "email": "naiara.franca@terceirizemais.com.br", "cargo": "Analista De Contrato", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Natan Higuti", "email": "natan.higuti@terceirizemais.com.br", "cargo": "Estagiário de SESMT", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Noélle Salles", "email": "noelle.salles@terceirizemais.com.br", "cargo": "Gerente de P&O", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Ozéias Garcia", "email": "ozeias.garcia@terceirizemais.com.br", "cargo": "Coordenador (a) de filial", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Pablo Martinez", "email": "pablo.martinez@terceirizemais.com.br", "cargo": "Especialista de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["antigravity", "claude_api", "claude_code", "cursor", "evolution", "github", "gpt_agents", "lovable", "make", "manus", "n8n", "openai_api", "openclaw", "railway", "sql", "supabase", "whatsapp"], "extra": []}, {"nome": "Pamela Scherer", "email": "pamela.scherer@terceirizemais.com.br", "cargo": "Analista de SGQ/SGI", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Rafael Mirinho", "email": "rafael.mirinho@terceirizemais.com.br", "cargo": "Analista de T.I", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["claude_code", "cursor", "github"], "extra": []}, {"nome": "Robson Carvalho", "email": "robson.carvalho@terceirizemais.com.br", "cargo": "Coordenador de Faturamento", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["prompt"], "extra": []}, {"nome": "Sheron Daniele Breier", "email": "sheron.breier@terceirizemais.com.br", "cargo": "Assistente de Planejamento", "diretoria": "Diretoria ADM e Financeira", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "prompt"], "extra": []}, {"nome": "Sidimar Placido Dos Santos", "email": "sidimar.santos@terceirizemais.com.br", "cargo": "Coordenador De CCO", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Suzianne Serra", "email": "suzianne.serra@terceirizemais.com.br", "cargo": "Coordenadora Contratos/Cadastros", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Sérgio Antônio Abrão Freitas", "email": "sergio.freitas@terceirizemais.com.br", "cargo": "Diretor de Operações", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Tainá Dreissig", "email": "taina.dreissig@terceirizemais.com.br", "cargo": "Auxiliar de dados (T.I)", "diretoria": "Diretoria ADM e Financeira", "req": ["t4", "t5"], "done": ["antigravity", "claude_api", "claude_code", "cursor", "evolution", "github", "gpt_agents", "lovable", "make", "manus", "n8n", "openai_api", "openclaw", "railway", "sql", "supabase", "whatsapp"], "extra": []}, {"nome": "Talia Renata De Souza Monteiro", "email": "talia.monteiro@terceirizemais.com.br", "cargo": "Coordenadora de documentação", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Tiago Cambruzzi", "email": "sesmt@costaoesteserv.com.br", "cargo": "Analista De Sesmt", "diretoria": "Diretoria de Pessoas", "req": ["t1", "t2"], "done": [], "extra": []}, {"nome": "Vanessa Gnoatto", "email": "vanessa.gnoatto@terceirizemais.com.br", "cargo": "Gerente de CCO", "diretoria": "Diretoria de Operação", "req": ["t1", "t2"], "done": ["chatgpt", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}, {"nome": "Viviane Kothe", "email": "editais@costaoesteserv.com.br", "cargo": "Coordenadora de licitações", "diretoria": "Diretoria Negocial", "req": ["t1", "t2"], "done": ["chatgpt", "claude_ai", "cowork", "design", "gemini", "notebooklm", "perplexity", "prompt"], "extra": []}];
+const trailNames = {t1:'Fundamentos de IA',t2:'Liderança e Gestão',t3:'Planejamento e Projetos (PMO)',t4:'Desenvolvimento de Sistemas',t5:'Automação de Processos e Agentes'};
+const trailWho = {t1:'Todos, exceto T.I',t2:'Todos, exceto T.I',t3:'Exclusiva do Analista de Projetos',t4:'Cargos de T.I',t5:'Cargos de T.I'};
+const TK = ['t1','t2','t3','t4','t5'];
+const directorNames = ['Kairon Nobrega Riguete','Sérgio Antônio Abrão Freitas','Lucelia Grabin','Guilherme Barbieri'];
+const corporateManagementNames = ['Alessandra Maria Da Costa Demetrio','Aline Goulart Barbieri','Andre Gilson Desoti','C. Weslei de Freitas','Carlos Lima','Celio Soares','Clayton Rosa','Eduardo Santos','Fernando Adriano Gomes','Jocasta Oliveira','Juliano Liberato','Justina Moreira','Lorena Xavier','Léia Kramer','Lucas Moraes','Michael Felipe Albertoni','Milene Mirinho','Márcio Leal','Noélle Salles','Robson Carvalho','Sidimar Placido Dos Santos','Suzianne Serra','Talia Renata De Souza Monteiro','Vanessa Gnoatto','Viviane Kothe'];
+const dirOrder = ['Diretoria ADM e Financeira','Diretoria de Operação','Diretoria de Pessoas','Diretoria Negocial','Diretoria Foods'];
+
+const fmtMin = m => `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}min`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+users.forEach(u => {
+  u.doneSet = new Set(u.done);
+  u.t = {};
+  u.req.forEach(k => { const miss = TRAILS[k].filter(c => !u.doneSet.has(c)); u.t[k] = {done: TRAILS[k].length - miss.length, total: TRAILS[k].length, miss}; });
+  const reqCourses = [...new Set(u.req.flatMap(k => TRAILS[k]))];
+  u.totalCourses = reqCourses.length;
+  u.missCourses = reqCourses.filter(c => !u.doneSet.has(c));
+  u.doneCourses = u.totalCourses - u.missCourses.length;
+});
+const dirs = dirOrder.filter(d => users.some(u => u.diretoria === d)).concat([...new Set(users.map(u => u.diretoria))].filter(d => !dirOrder.includes(d)));
+
+/* trilhas */
+document.getElementById('trail-grid').innerHTML = TK.map(k => { const mins = TRAILS[k].reduce((a,c) => a + COURSES[c].min, 0);
+  return `<article class="trail-card"><span class="flag">${k.toUpperCase()}</span><h3>${trailNames[k]}</h3><p class="note">${trailWho[k]}</p><ol>${TRAILS[k].map(c => `<li><b>${COURSES[c].nome}</b><span>${COURSES[c].min} min</span></li>`).join('')}</ol><p><b>Carga horária:</b> ${TRAILS[k].length} formações · ${fmtMin(mins)}</p></article>`; }).join('');
+
+const trailRate = (arr, k) => { const b = arr.filter(u => u.req.includes(k)); const d = b.filter(u => u.t[k].miss.length === 0).length; return {d, t: b.length, p: b.length ? d / b.length * 100 : 0}; };
+const totalDone = users.reduce((a,u) => a + u.doneCourses, 0), totalAll = users.reduce((a,u) => a + u.totalCourses, 0);
+const upToDate = users.filter(u => u.missCourses.length === 0).length;
+document.getElementById('kpis').innerHTML = [
+  [users.length, 'pessoas acompanhadas'],
+  [`${upToDate}/${users.length}`, 'com todas as trilhas concluídas'],
+  [`${(totalDone/totalAll*100).toFixed(1)}%`, `dos cursos obrigatórios feitos (${totalDone} de ${totalAll})`],
+  [totalAll - totalDone, 'cursos ainda pendentes no total']
+].map(([b,s]) => `<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join('');
+document.getElementById('progress').innerHTML = TK.map(k => { const r = trailRate(users, k);
+  return `<article class="card"><b>${k.toUpperCase()} · ${trailNames[k]}</b><div class="big">${r.d}/${r.t}</div><div class="bar"><i style="width:${r.p}%"></i></div><p>${r.t - r.d} pessoa(s) com curso pendente</p></article>`; }).join('');
+
+/* filtros */
+let fStatus = 'all', fTrail = 'any', fDir = '', fQ = '';
+const dirStatus = {}; const openDirs = new Set(); const openPeople = new Set();
+const passes = (u, st = fStatus) => {
+  if (fDir && u.diretoria !== fDir) return false;
+  if (fQ && !(u.nome.toLowerCase().includes(fQ) || u.cargo.toLowerCase().includes(fQ))) return false;
+  if (st === 'all') return fTrail === 'any' || u.req.includes(fTrail);
+  const ks = fTrail === 'any' ? u.req : (u.req.includes(fTrail) ? [fTrail] : []);
+  if (!ks.length) return false;
+  const pend = ks.some(k => u.t[k].miss.length);
+  return st === 'pend' ? pend : !pend;
+};
+const emptyMsg = '<p class="empty">Ninguém neste bloco com o filtro atual.</p>';
+
+/* pessoa */
+const chip = (k, t) => `<span class="chip ${t.miss.length === 0 ? 'ok' : t.done ? 'part' : 'zero'}">${k.toUpperCase()} ${t.done}/${t.total}</span>`;
+const personHtml = (u, scope) => {
+  const id = scope + '|' + u.email + '|' + u.nome;
+  const pct = u.totalCourses ? u.doneCourses / u.totalCourses * 100 : 0;
+  const status = u.missCourses.length ? `<b class="pend">Faltam ${u.missCourses.length}</b>` : `<b class="okt">Tudo concluído</b>`;
+  const boxes = u.req.map(k => `<div class="tbox"><h4>${k.toUpperCase()} · ${trailNames[k]}<span>${u.t[k].done}/${u.t[k].total}</span></h4><ul>${TRAILS[k].map(c => u.doneSet.has(c) ? `<li class="ok">${COURSES[c].nome}<span class="mk">Feito</span></li>` : `<li class="miss">${COURSES[c].nome}<span class="mk">Falta</span></li>`).join('')}</ul></div>`).join('');
+  const missTxt = u.missCourses.length ? `<div class="missing"><b>Falta fazer (${u.missCourses.length} curso${u.missCourses.length > 1 ? 's' : ''}, ${fmtMin(u.missCourses.reduce((a,c) => a + COURSES[c].min, 0))}):</b> ${u.missCourses.map(c => COURSES[c].nome).join(', ')}</div>` : `<div class="alldone">Tudo em dia. Todas as trilhas obrigatórias concluídas.</div>`;
+  const extra = u.extra.length ? `<p class="extra">Também fez, fora das trilhas obrigatórias: ${u.extra.map(c => COURSES[c].nome).join(', ')}</p>` : '';
+  return `<details class="person" data-id="${esc(id)}"${openPeople.has(id) ? ' open' : ''}><summary><div class="who"><b>${esc(u.nome)}</b><span>${esc(u.cargo)}</span></div><div class="chips">${u.req.map(k => chip(k, u.t[k])).join('')}</div><div class="prog">${u.doneCourses}/${u.totalCourses} cursos · ${status}<div class="bar"><i style="width:${pct}%"></i></div></div></summary><div class="detail">${missTxt}<div class="tgrid">${boxes}</div>${extra}</div></details>`;
+};
+const sortPeople = arr => arr.sort((a,b) => (directorNames.includes(b.nome) - directorNames.includes(a.nome)) || a.nome.localeCompare(b.nome, 'pt-BR'));
+const peopleHtml = (arr, scope) => arr.length ? arr.map(u => personHtml(u, scope)).join('') : emptyMsg;
+
+/* diretorias */
+const rowBar = (lbl, r) => r.t ? `<div class="dir-row"><b>${lbl}</b><div class="bar"><i style="width:${r.p}%"></i></div><span>${r.d}/${r.t}</span></div>` : '';
+document.getElementById('dir-cards').innerHTML = dirs.map(d => { const arr = users.filter(u => u.diretoria === d); const l = arr.find(u => directorNames.includes(u.nome));
+  const cd = arr.reduce((a,u) => a + u.doneCourses, 0), ct = arr.reduce((a,u) => a + u.totalCourses, 0);
+  return `<article class="dir-card"><h3>${d}</h3><span class="lead">${l ? esc(l.nome) + ' · ' : ''}${arr.length} pessoa(s) · ${(cd/ct*100).toFixed(0)}% dos cursos feitos</span>${TK.map(k => rowBar(k.toUpperCase(), trailRate(arr, k))).join('')}</article>`; }).join('');
+const segHtml = (cur, d) => `<div class="seg" role="group" aria-label="Status em ${d}">${[['all','Todos'],['pend','Pendentes'],['done','Concluídos']].map(([v,l]) => `<button type="button" data-dir="${d}" data-v="${v}" aria-pressed="${cur === v}">${l}</button>`).join('')}</div>`;
+const renderDirLists = () => {
+  document.getElementById('dir-lists').innerHTML = dirs.filter(d => !fDir || d === fDir).map(d => {
+    const st = dirStatus[d] ?? fStatus; const all = users.filter(u => u.diretoria === d); const arr = sortPeople(all.filter(u => passes(u, st)));
+    const info = st === 'all' && fTrail === 'any' && !fQ ? `${all.length} pessoa(s) · ${all.filter(u => !u.missCourses.length).length} em dia` : `${arr.length} de ${all.length} no filtro`;
+    return `<details class="group" data-dir="${d}"${openDirs.has(d) ? ' open' : ''}><summary>${d}<small>${info}</small></summary><div class="inside"><div class="blockbar"><span class="lbl">Status nesta diretoria</span>${segHtml(st, d)}</div><div class="people">${peopleHtml(arr, 'dir')}</div></div></details>`;
+  }).join('');
+};
+const dl = document.getElementById('dir-lists');
+dl.addEventListener('click', e => { const b = e.target.closest('button[data-dir]'); if (!b) return; dirStatus[b.dataset.dir] = b.dataset.v; openDirs.add(b.dataset.dir); renderDirLists(); });
+document.addEventListener('toggle', e => { const el = e.target; if (!el.dataset) return;
+  if (el.classList.contains('group') && el.dataset.dir) el.open ? openDirs.add(el.dataset.dir) : openDirs.delete(el.dataset.dir);
+  if (el.classList.contains('person')) el.open ? openPeople.add(el.dataset.id) : openPeople.delete(el.dataset.id); }, true);
+
+const renderMgmt = () => {
+  document.getElementById('directors').innerHTML = peopleHtml(sortPeople(users.filter(u => directorNames.includes(u.nome) && passes(u))), 'dirs');
+  document.getElementById('management').innerHTML = peopleHtml(sortPeople(users.filter(u => corporateManagementNames.includes(u.nome) && passes(u))), 'mgmt');
+};
+
+/* detalhamento por trilha */
+const trailTable = (arr, k) => `<div class="tablewrap"><table><thead><tr><th>Nome</th><th>Cargo</th><th>Diretoria</th><th>Na trilha</th><th>Falta</th></tr></thead><tbody>${arr.map(u => `<tr><td><b>${esc(u.nome)}</b></td><td>${esc(u.cargo)}</td><td>${u.diretoria.replace('Diretoria ','')}</td><td>${u.t[k].done}/${u.t[k].total}</td><td>${u.t[k].miss.map(c => COURSES[c].nome).join(', ') || '·'}</td></tr>`).join('')}</tbody></table></div>`;
+document.getElementById('lists').innerHTML = TK.map(k => { const base = users.filter(u => u.req.includes(k)); const done = base.filter(u => !u.t[k].miss.length); const pend = base.filter(u => u.t[k].miss.length).sort((a,b) => b.t[k].done - a.t[k].done || a.nome.localeCompare(b.nome,'pt-BR'));
+  return `<details class="group"><summary>${k.toUpperCase()} · ${trailNames[k]}<small>Concluíram (${done.length})</small></summary><div class="inside">${done.length ? trailTable(done, k) : emptyMsg}</div></details><details class="group"><summary>${k.toUpperCase()} · ${trailNames[k]}<small>Pendentes (${pend.length})</small></summary><div class="inside">${pend.length ? trailTable(pend, k) : emptyMsg}</div></details>`; }).join('');
+
+/* barra global */
+const sel = document.getElementById('dir-filter'); sel.innerHTML += dirs.map(d => `<option value="${d}">${d}</option>`).join('');
+const autoOpen = () => { openDirs.clear(); if (fStatus !== 'all' || fQ || fTrail !== 'any') dirs.forEach(d => { if (users.some(u => u.diretoria === d && passes(u, dirStatus[d] ?? fStatus))) openDirs.add(d); }); };
+const renderAll = () => { renderDirLists(); renderMgmt();
+  const n = users.filter(u => passes(u)).length; const t = fTrail === 'any' ? 'em alguma trilha' : 'na ' + fTrail.toUpperCase();
+  document.getElementById('status-count').textContent = fStatus === 'all' ? `${n} pessoa(s)` : `${n} pessoa(s) ${fStatus === 'pend' ? 'com pendência' : 'com tudo concluído'} ${t}`; };
+document.querySelectorAll('#status-seg button').forEach(b => b.addEventListener('click', () => { fStatus = b.dataset.v; for (const k in dirStatus) delete dirStatus[k];
+  document.querySelectorAll('#status-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); autoOpen(); renderAll(); }));
+document.getElementById('trail-filter').addEventListener('change', e => { fTrail = e.target.value; autoOpen(); renderAll(); });
+sel.addEventListener('change', e => { fDir = e.target.value; if (fDir) openDirs.add(fDir); renderAll(); });
+document.getElementById('search').addEventListener('input', e => { fQ = e.target.value.trim().toLowerCase(); autoOpen(); renderAll(); });
+renderAll();
+</script>
+
+</body></html>
