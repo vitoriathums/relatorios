@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farol do P.E. — Terceirize+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#101519;--paper:#E9EDEB;--panel:#FFF;--rule:#C6D0CD;--soft:#E4EAE8;
+  --muted:#5D6A67;--deep:#16302A;--slate:#41504C;
+  --red:#AE2216;--orange:#B8501B;--teal:#0B6154;--grey:#8A9490;
+  --disp:"IBM Plex Sans Condensed",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.4}
+.wrap{max-width:1320px;margin:0 auto;padding:0 20px 40px}
+header{background:var(--deep);color:#EAF1EE}
+.hd{max-width:1320px;margin:0 auto;padding:11px 20px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.hd h1{font-family:var(--disp);font-weight:700;font-size:21px;margin:0;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap}
+.hd .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:#8FB0A7;text-transform:uppercase}
+.ctrls{display:flex;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid #3B5A52;border-radius:2px;overflow:hidden}
+.seg button{font-family:var(--disp);font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;background:transparent;color:#9FC0B7;border:0;padding:6px 11px;cursor:pointer}
+.seg button+button{border-left:1px solid #3B5A52}
+.seg button[aria-pressed="true"]{background:#EAF1EE;color:var(--deep)}
+.seg button:focus-visible{outline:2px solid #F0C24B;outline-offset:-2px}
+.pdf{font-family:var(--disp);font-weight:600;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;background:transparent;color:#9FC0B7;border:1px solid #3B5A52;border-radius:2px;padding:6px 12px;cursor:pointer;margin-left:6px}
+.pdf:hover{background:#EAF1EE;color:var(--deep)}
+.pdf:focus-visible{outline:2px solid #F0C24B;outline-offset:1px}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7FA096}
+
+/* placar */
+.placar{display:grid;grid-template-columns:repeat(8,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:18px}
+.tile{background:var(--panel);padding:11px 12px 12px;cursor:pointer;position:relative;text-align:left;border:0;border-top:4px solid var(--grey);font:inherit;color:inherit;display:block;width:100%}
+.tile.fora{border-top-color:var(--red)}.tile.aten{border-top-color:var(--orange)}.tile.dentro{border-top-color:var(--teal)}
+.tile.geral{background:var(--deep);color:#EAF1EE;border-top-color:#EAF1EE}
+.tile[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.tile:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.tile .o{font-family:var(--disp);font-weight:600;font-size:12.5px;line-height:1.15;height:2.3em;overflow:hidden;text-transform:uppercase;letter-spacing:.01em}
+.tile .o .ix{color:var(--muted);font-weight:600;margin-right:5px}
+.tile .dn{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.04em;margin-top:2px}
+.tile.geral .dn{color:#8FB0A7}
+.tile .p{font-family:var(--disp);font-weight:700;font-size:34px;line-height:1;margin-top:7px;letter-spacing:-.02em}
+.tile .p small{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:0;color:var(--muted);margin-left:6px}
+.tile.geral .p small{color:#8FB0A7}
+.tile.fora .p{color:var(--red)}.tile.aten .p{color:var(--orange)}.tile.dentro .p{color:var(--teal)}
+.bar{display:flex;height:6px;margin:7px 0 6px;background:var(--soft)}
+.tile.geral .bar{background:#2C4A42}
+.bar i{display:block}.bar .c{background:var(--teal)}.bar .v{background:var(--red)}.bar .n{background:var(--orange)}.bar .j{background:#B9C3C0}.bar .x{background:var(--grey)}
+.tile .st{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--slate);min-height:2.5em}
+.tile.geral .st{color:#AFC9C2}
+.tile .st b{color:var(--red)}.tile .st i{font-style:normal;color:var(--orange)}
+
+h2{font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;margin:26px 0 0;padding-bottom:6px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+h2 .cnt{font-family:var(--mono);font-weight:400;font-size:10.5px;color:var(--muted);text-transform:none;letter-spacing:.03em}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:12px}
+.blk h3{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--red);margin:0;padding:4px 9px}
+.blk.n h3{background:var(--orange)}.blk.j h3{background:var(--slate)}.blk.x h3{background:var(--grey)}
+ul.lst{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid var(--soft);border-top:0}
+ul.lst li{display:flex;gap:9px;align-items:baseline;padding:6px 9px;border-bottom:1px solid var(--soft);font-size:13px}
+ul.lst li:last-child{border-bottom:0}
+ul.lst .kr{font-family:var(--disp);font-weight:700;font-size:11.5px;white-space:nowrap;min-width:64px;color:var(--slate)}
+ul.lst .tx{flex:1;line-height:1.28}
+ul.lst .tx em{font-style:normal;display:block;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px}
+ul.lst .dt{font-family:var(--mono);font-size:11px;white-space:nowrap;text-align:right}
+ul.lst .dt b{color:var(--red);font-weight:600;display:block}
+ul.lst .dt s{text-decoration:none;color:var(--muted);display:block}
+ul.lst .dt s u{text-decoration:none;color:var(--orange);font-weight:600}
+ul.lst .foco{font-family:var(--mono);font-size:9px;font-weight:600;color:#fff;background:var(--red);padding:1px 4px;margin-left:6px;letter-spacing:.05em;white-space:nowrap}
+ul.lst li.foco-on{background:#FDF4F2;box-shadow:inset 3px 0 0 var(--red)}
+details.hist{margin-top:20px;background:var(--panel);border:1px solid var(--soft)}
+details.hist summary{font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:8px 10px;cursor:pointer;color:var(--slate)}
+details.hist summary::marker{color:var(--muted)}
+details.hist ul.lst{border:0;border-top:1px solid var(--soft)}
+details.hist .ord{display:flex;gap:7px;align-items:center;padding:7px 10px;border-top:1px solid var(--soft);background:var(--soft)}
+details.hist .ord span{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+details.hist .ord button{font-family:var(--disp);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;background:var(--panel);color:var(--slate);border:1px solid var(--rule);border-radius:2px;padding:3px 10px;cursor:pointer}
+details.hist .ord button[aria-pressed="true"]{background:var(--deep);color:#EAF1EE;border-color:var(--deep)}
+details.hist .ord button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+details.hist .ok{color:var(--teal);font-weight:600;display:block}
+details.hist .fora{color:var(--orange);font-weight:600;display:block}
+ul.lst .nx{font-family:var(--mono);font-size:9.5px;font-weight:600;color:#fff;background:var(--orange);padding:1px 4px;margin-left:5px;white-space:nowrap}
+.subh{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--soft);padding:3px 9px;border-left:1px solid var(--soft);border-right:1px solid var(--soft)}
+.empty{background:var(--panel);border:1px solid var(--soft);border-top:0;padding:16px;text-align:center;color:var(--muted);font-size:12.5px}
+footer{margin-top:26px;border-top:1px solid var(--rule);padding-top:10px;font-size:11.5px;color:var(--muted)}
+footer b{color:var(--slate)}
+@media (max-width:1200px){.placar{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:760px){.placar{grid-template-columns:repeat(2,1fr)}.cols{grid-template-columns:1fr}}
+@media print{
+  @page{size:A4 landscape;margin:9mm}
+  body{background:#fff;font-size:11px}
+  .wrap{max-width:none;padding:0}
+  header{background:#fff;color:#000;border-bottom:2px solid #000}
+  .hd{padding:0 0 6px}
+  .hd h1{font-size:17px}.hd .sub{color:#444}
+  .ctrls{display:none}
+  .tile.geral{background:#fff;color:#000;border:1px solid var(--rule)}
+  .tile.geral .dn,.tile.geral .st{color:#444}
+  .tile.geral .bar{background:var(--soft)}
+  .placar{margin-top:8px;grid-template-columns:repeat(8,1fr)!important}
+  .tile{padding:6px 7px}.tile .o{font-size:10.5px;height:2.3em}.tile .p{font-size:22px}
+  .tile .dn,.tile .st{font-size:8.5px}
+  .cols{gap:10px;grid-template-columns:1fr 1fr!important}
+  .blk{break-inside:auto}
+  .blk h3{break-after:avoid}
+  ul.lst li{padding:2px 6px;break-inside:avoid;font-size:10px;gap:7px}
+  ul.lst .tx{line-height:1.2}
+  .blk h3{padding:3px 7px;font-size:9px}
+  h2{margin-top:9px;padding-bottom:4px;font-size:11px}
+  ul.lst .tx em{font-size:8.5px}
+  ul.lst .dt{font-size:9.5px}
+  h2{margin-top:12px}
+  footer{margin-top:10px}
+  details.hist{display:none}
+}
+</style>
+</head>
+<body>
+<header><div class="hd">
+  <div><h1>Farol do P.E. — Terceirize+</h1><div class="sub" id="subhead">carregando…</div></div>
+  <div class="ctrls">
+    <span class="lbl">Prazo</span>
+    <div class="seg" id="segView"><button data-v="rep" aria-pressed="true">Repactuado</button><button data-v="ini" aria-pressed="false">Inicial</button></div>
+    <button class="pdf" id="btnPdf" title="Abre a caixa de impressão; escolher Salvar como PDF, paisagem">PDF</button>
+    <button class="pdf" id="btnCsv" title="Baixa a base completa em CSV, incluindo as concluídas">CSV</button>
+  </div>
+</div></header>
+<div class="wrap">
+  <div class="placar" id="placar"></div>
+  <h2 id="ttl">Quem está fora <span class="cnt" id="cnt"></span></h2>
+  <div class="cols" id="cols"></div>
+  <details class="hist" id="hist"></details>
+  <footer id="rodape"></footer>
+</div>
+<script id="dados" type="application/json">{"meta": {"donos": {"Modelo de Gestão": "Michael", "Comercial, Marketing e Soluções": "Clayton", "Clientes": "André Desoti", "Eficiência Operacional e Processos": "Sérgio", "Cultura, Pessoas e Comunicação": "Lucélia", "Inovação e Tecnologia": "Carlos", "Financeiro": "Kairon"}, "ref": "2026-09-01", "fimJanela": "2026-09-30", "krs": 22}, "itens": [{"c": "AC0001", "o": "Clientes", "n": 1, "k": "Clientes KR-01", "d": "Criar equipe de sucesso do cliente e definir métricas de abordagem para melhoria continua dos serviços", "r": "André Desoti", "di": "2026-04-30", "dr": "2026-07-31", "nr": 1, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-07-21", "atr": true}, {"c": "AC0002", "o": "Clientes", "n": 1, "k": "Clientes KR-01", "d": "Desdobrar o resultado do NPS por seguimento", "r": "André Desoti", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-30", "atr": false}, {"c": "AC0003", "o": "Clientes", "n": 1, "k": "Clientes KR-01", "d": "Medir NPS no 1º semestre de 2026", "r": "André Desoti", "di": "2026-07-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-07-28", "atr": false}, {"c": "AC0001", "o": "Clientes", "n": 3, "k": "Clientes KR-03", "d": "Encontrar o X, Verificar qual é o nosso SLA atual", "r": "Carlos Weslei de Freitas", "di": "2026-06-30", "dr": "2026-08-31", "nr": 1, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-08-25", "atr": true}, {"c": "AC0002", "o": "Clientes", "n": 3, "k": "Clientes KR-03", "d": "Construir modelo de SLA (desdobrar e ponderar) por cliente (PLANO DE TRABALHO/CHECKLIST FACIL)", "r": "Carlos Weslei de Freitas", "di": "2026-06-30", "dr": "2026-08-31", "nr": 1, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-08-25", "atr": true}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 1, "k": "Comercial, Marketing e Soluções KR-01", "d": "1. Mapear até 3 produtos reais de concessões/PPPs (pipeline com 3 produtos)", "r": "Clayton Rosa", "di": "2026-03-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-25", "atr": false}, {"c": "AC0002", "o": "Comercial, Marketing e Soluções", "n": 1, "k": "Comercial, Marketing e Soluções KR-01", "d": "2. Criar banco de dados comparativo de concessões e PPPs.", "r": "Rafaela Freire", "di": "2026-06-30", "dr": "2026-08-31", "nr": 2, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 33, "dc": null, "atr": false}, {"c": "AC0003", "o": "Comercial, Marketing e Soluções", "n": 1, "k": "Comercial, Marketing e Soluções KR-01", "d": "3. Definir parceiros estratégicos para trabalharmos em parcerias e/ou consórcio/SPE", "r": "Rafael Bogo", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 75, "dc": null, "atr": false}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "01. Criar o modelo oficial de POC, incluindo etapas.", "r": "Rafaela Freire", "di": "2026-04-30", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 10, "dc": null, "atr": false}, {"c": "AC0002", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "03. Criar 3 pacotes de upsell / cross sell comercial pré-formatados com base nas soluções desenvolvidas.", "r": "Clayton Rosa", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-12", "atr": false}, {"c": "AC0004", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "09. Padronizar modelo de visitas com foco em upsell", "r": "André Desoti", "di": "2026-09-30", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Dentro do prazo", "pct": null, "dc": null, "atr": false}, {"c": "AC0010", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "04. Identificar a margem de contribuição média atual", "r": "Clayton Rosa", "di": "2026-07-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-08-19", "atr": true}, {"c": "AC0011", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "05. Definir a meta de margem de contribuição média desejada.", "r": "Daniel Bogo", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-19", "atr": false}, {"c": "AC0013", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "06. Identificar a margem da EBITDA atual por segmento", "r": "Clayton Rosa", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-19", "atr": false}, {"c": "AC0014", "o": "Comercial, Marketing e Soluções", "n": 2, "k": "Comercial, Marketing e Soluções KR-02", "d": "07. Definir a meta da EBITDA por segmento", "r": "Rafael Bogo", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 3, "k": "Comercial, Marketing e Soluções KR-03", "d": "3. Criar: a) Modelo Completo de Edital (ETP, TR, etc.) de FULL FOODS; b) Apresentação ao cliente com as vantagens da solução;", "r": "Guilherme Barbieri", "di": "2026-06-30", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}, {"c": "AC0002", "o": "Comercial, Marketing e Soluções", "n": 3, "k": "Comercial, Marketing e Soluções KR-03", "d": "1. Definir métricas para precificação por cardápio / tipo de refeição", "r": "Guilherme Barbieri", "di": "2026-04-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-06-09", "atr": true}, {"c": "AC0007", "o": "Comercial, Marketing e Soluções", "n": 3, "k": "Comercial, Marketing e Soluções KR-03", "d": "2. Apresentar painel de controle para acompanhamento de licitações de Foods", "r": "Clayton Rosa", "di": "2026-05-29", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-06-05", "atr": true}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 4, "k": "Comercial, Marketing e Soluções KR-04", "d": "2. Aprimorar curso de capacitação do PAE", "r": "Daniel Bogo", "di": "2026-05-29", "dr": "2026-11-30", "nr": 2, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0002", "o": "Comercial, Marketing e Soluções", "n": 4, "k": "Comercial, Marketing e Soluções KR-04", "d": "3. Criar: a) Modelo Completo de Edital (ETP, TR, etc.) de Cuidador de Alunos; b) Apresentação ao Cliente;", "r": "Clayton Rosa", "di": "2026-06-30", "dr": "2026-07-31", "nr": 1, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-08-10", "atr": true}, {"c": "AC0006", "o": "Comercial, Marketing e Soluções", "n": 4, "k": "Comercial, Marketing e Soluções KR-04", "d": "1. Identificar faturamento atual de contratos de cuidadores/profissional de apoio escolar", "r": "Clayton Rosa", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-12", "atr": false}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 7, "k": "Comercial, Marketing e Soluções KR-07", "d": "Contratar consultoria em Máquina de Vendas (Sales Club / DNA de vendas, etc.), com direta ATUAÇÃO da DIRETORIA (inclusive CEO)", "r": "Rafael Bogo", "di": "2026-08-31", "dr": "2026-09-15", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 75, "dc": null, "atr": false}, {"c": "AC0001", "o": "Comercial, Marketing e Soluções", "n": 11, "k": "Comercial, Marketing e Soluções KR-11", "d": "Migrar caixas de e-mail passando a utilizar Microsoft (Estruturação de e-mails institucionais (nome.sobrenome@terceirizemais.com.br)", "r": "Carlos Lima", "di": "2026-05-29", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-06-23", "atr": true}, {"c": "AC0002", "o": "Comercial, Marketing e Soluções", "n": 11, "k": "Comercial, Marketing e Soluções KR-11", "d": "Migrar apresentações, propostas, catálogos, documentos oficiais, perfis sociais, etc. para a identidade Terceirize+", "r": "Antonio Valini", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-30", "atr": false}, {"c": "AC0001", "o": "Cultura, Pessoas e Comunicação", "n": 1, "k": "Cultura, Pessoas e Comunicação KR-01", "d": "(Construção da Culture Pulse) Realizar 2 pesquisas de Culture Pulse. Realizar amostragem de 2 pesquisas para definição do percentual.", "r": "Noélle Salles", "di": "2026-08-31", "dr": "2026-09-30", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0001", "o": "Cultura, Pessoas e Comunicação", "n": 2, "k": "Cultura, Pessoas e Comunicação KR-02", "d": "Realizar treinamentos estruturados para líderes sobre vieses inconscientes, meritocracia real, diferenciação de desempenho e condução de feedbacks 1:1.", "r": "Noélle Salles", "di": "2026-09-30", "dr": "2026-10-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Dentro do prazo", "pct": 50, "dc": null, "atr": false}, {"c": "AC0001", "o": "Cultura, Pessoas e Comunicação", "n": 3, "k": "Cultura, Pessoas e Comunicação KR-03", "d": "Realizar o comparativo estruturado entre a metodologia GPTW e a pesquisa de clima anterior.", "r": "Noélle Salles", "di": "2026-03-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-31", "atr": false}, {"c": "AC0002", "o": "Cultura, Pessoas e Comunicação", "n": 3, "k": "Cultura, Pessoas e Comunicação KR-03", "d": "Implantar feedbacks culturais mensais na Impulse-Up.", "r": "Noélle Salles", "di": "2026-03-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-31", "atr": false}, {"c": "AC0001", "o": "Cultura, Pessoas e Comunicação", "n": 5, "k": "Cultura, Pessoas e Comunicação KR-05", "d": "Realizar a análise do quantitativo de candidaturas atuais.", "r": "Noélle Salles", "di": "2026-07-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-07-31", "atr": false}, {"c": "AC0002", "o": "Cultura, Pessoas e Comunicação", "n": 5, "k": "Cultura, Pessoas e Comunicação KR-05", "d": "Criar e executar campanhas digitais de atração com foco no perfil da vaga, direcionadas aos canais onde os talentos estão presentes.", "r": "Noélle Salles", "di": "2026-07-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-07-31", "atr": false}, {"c": "AC0003", "o": "Cultura, Pessoas e Comunicação", "n": 5, "k": "Cultura, Pessoas e Comunicação KR-05", "d": "Modernizar o Portal de Carreiras adotando linguagem adequada e melhorando a experiência do candidato.", "r": "Noélle Salles", "di": "2026-09-30", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Dentro do prazo", "pct": null, "dc": null, "atr": false}, {"c": "AC0004", "o": "Cultura, Pessoas e Comunicação", "n": 5, "k": "Cultura, Pessoas e Comunicação KR-05", "d": "Implantar programa com objetivo de demostrar os bastidores da empresa, equipes, projetos e transformações reais.", "r": "Noélle Salles", "di": "2026-09-30", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Dentro do prazo", "pct": null, "dc": null, "atr": false}, {"c": "AC0001", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "01. Implementar aplicação de sanções progressivas para faltas injustificadas, resultando em rescisão por justa causa mediante parecer técnico", "r": "Lucelia Grabin", "di": "2026-03-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-31", "atr": false}, {"c": "AC0002", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "Análise Preditiva da folha, anterior e não somente BI, posterior.", "r": "Lucelia Grabin", "di": "2026-05-29", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": true, "ini": true, "farol": "Cancelada", "pct": null, "dc": null, "atr": false}, {"c": "AC0003", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "Parametrizar BI com alertas automáticos", "r": "Lucelia Grabin", "di": "2026-05-29", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": true, "ini": true, "farol": "Cancelada", "pct": null, "dc": null, "atr": false}, {"c": "AC0004", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "02. Defesa de margem em licitação - Criar indicador real \"Margem Humana\" por contrato (ROI)", "r": "Lucelia Grabin", "di": "2026-05-29", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-05-29", "atr": false}, {"c": "AC0005", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "03. Análise de contratos em CNPJ filiais – redução FAP", "r": "Lucelia Grabin", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-30", "atr": false}, {"c": "AC0006", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "04. Análise Jurídica das CCTs para fazermos ACTs, principalmente rescisões.", "r": "Lucelia Grabin", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-24", "atr": false}, {"c": "AC0007", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "05. Integração automática ponto (HK e Pontomais) x folha (Domínio)", "r": "Lucelia Grabin", "di": "2026-06-30", "dr": "2026-10-30", "nr": 2, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}, {"c": "AC0009", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "07. Negociações sindicais: acordos/convenções e coletivas vigentes", "r": "Lucelia Grabin", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0010", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "Absenteísmo estrutural controlado - reduzir em x% o absenteísmo recorrente (mesmos colaboradores)", "r": "Lucelia Grabin", "di": "2026-09-30", "dr": null, "nr": 0, "concl": false, "canc": true, "ini": false, "farol": "Cancelada", "pct": null, "dc": null, "atr": false}, {"c": "AC0014", "o": "Cultura, Pessoas e Comunicação", "n": 6, "k": "Cultura, Pessoas e Comunicação KR-06", "d": "06. Análise Preditiva da folha por IA.", "r": "Lucelia Grabin", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-27", "atr": false}, {"c": "AC0001", "o": "Eficiência Operacional e Processos", "n": 2, "k": "Eficiência Operacional e Processos KR-02", "d": "1. Criar um time de implantação e aumentar a efetividade das implantações de contratos (PIC) e definir um \"método padrão\" para cada implantação", "r": "Carlos Weslei de Freitas", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-05-14", "atr": false}, {"c": "AC0001", "o": "Eficiência Operacional e Processos", "n": 4, "k": "Eficiência Operacional e Processos KR-04", "d": "1. Mapear contratos e departamentos com maior consumo de produtos diluídos e maior potencial de conversão para concentrados.", "r": "Diogo Escher", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-30", "atr": false}, {"c": "AC0002", "o": "Eficiência Operacional e Processos", "n": 4, "k": "Eficiência Operacional e Processos KR-04", "d": "2. Negociar, implantar e acompanhar gestão à vista nos postos convertidos para produtos concentrados.", "r": "Carlos Weslei de Freitas", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-31", "atr": false}, {"c": "AC0003", "o": "Eficiência Operacional e Processos", "n": 4, "k": "Eficiência Operacional e Processos KR-04", "d": "3. Desenvolver fornecedores e produtos concentrados homologados, garantindo qualidade, segurança e custo competitivo.", "r": "Fernando Gomes", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-26", "atr": false}, {"c": "AC0001", "o": "Eficiência Operacional e Processos", "n": 8, "k": "Eficiência Operacional e Processos KR-08", "d": "3. Definir a quantidade de usuários e modelo de checklist a serem padronizados", "r": "Arlene Pereira", "di": "2026-03-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-30", "atr": false}, {"c": "AC0002", "o": "Eficiência Operacional e Processos", "n": 8, "k": "Eficiência Operacional e Processos KR-08", "d": "2. Criar um cronograma de implantação do sistema com as prioridades definidas", "r": "Michael Felipe Albertoni", "di": "2026-04-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-03-10", "atr": false}, {"c": "AC0003", "o": "Eficiência Operacional e Processos", "n": 8, "k": "Eficiência Operacional e Processos KR-08", "d": "1. Definir os Key users e realizar o treinamento do time", "r": "Arlene Pereira", "di": "2026-05-29", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-04-30", "atr": false}, {"c": "AC0004", "o": "Eficiência Operacional e Processos", "n": 8, "k": "Eficiência Operacional e Processos KR-08", "d": "4. Criar hierarquia e rotina de gestão e tomada de decisão com base em dados", "r": "Carlos Weslei de Freitas", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-05-26", "atr": false}, {"c": "AC0005", "o": "Eficiência Operacional e Processos", "n": 8, "k": "Eficiência Operacional e Processos KR-08", "d": "Auditar o uso do Sistema em sua totalidade.", "r": "Léia Kramer", "di": "2026-07-31", "dr": null, "nr": 0, "concl": false, "canc": true, "ini": false, "farol": "Cancelada", "pct": null, "dc": null, "atr": false}, {"c": "AC0001", "o": "Financeiro", "n": 1, "k": "Financeiro KR-01", "d": "4. Definir e gerenciar o orçamento CAPEX, OPEX do grupo por centro de custo", "r": "Juliano Liberato", "di": "2026-05-29", "dr": "2026-12-31", "nr": 2, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0003", "o": "Financeiro", "n": 1, "k": "Financeiro KR-01", "d": "2. Trocar o parceiro de combustível (Gestão da frota e Logística)", "r": "Eduardo Santos", "di": "2026-05-29", "dr": "2026-07-31", "nr": 1, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-07-06", "atr": true}, {"c": "AC0004", "o": "Financeiro", "n": 1, "k": "Financeiro KR-01", "d": "1. Aprovar estrutura e contratações para controladoria e financeiro", "r": "Kairon Riguete", "di": "2026-06-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-30", "atr": false}, {"c": "AC0005", "o": "Financeiro", "n": 1, "k": "Financeiro KR-01", "d": "5. Implantar política de governança e compliance financeira", "r": "Kairon Riguete", "di": "2026-08-31", "dr": "2026-12-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 25, "dc": null, "atr": false}, {"c": "AC0006", "o": "Financeiro", "n": 1, "k": "Financeiro KR-01", "d": "3. Avaliar BULLA, VOLUUS, SOMAPAY. MENTORI BANK e outras oportunidades", "r": "Kairon Riguete", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-06-15", "atr": false}, {"c": "AC0001", "o": "Financeiro", "n": 7, "k": "Financeiro KR-07", "d": "1. Definir qual das empresas (KPMG, DELOITTE, EY, PWC)", "r": "Kairon Riguete", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-12", "atr": false}, {"c": "AC0002", "o": "Inovação e Tecnologia", "n": 3, "k": "Inovação e Tecnologia KR-03", "d": "1. Criação do \"Laboratório de Simulação de P.O.C.\" e Programa de \"Treinamento de Pilotos de Inovação\" (Link nas Observações.)", "r": "Artur Rossi", "di": "2026-07-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 60, "dc": null, "atr": false}, {"c": "AC0008", "o": "Inovação e Tecnologia", "n": 3, "k": "Inovação e Tecnologia KR-03", "d": "3. Formação e definição de uma estrutura e equipe interna especialista em criar, validar e apresentar a POC 1, 1 Infra e 1 Sistemas e 1 mesa operacional", "r": "Carlos Lima", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": false, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}, {"c": "AC0009", "o": "Inovação e Tecnologia", "n": 3, "k": "Inovação e Tecnologia KR-03", "d": "2. Digitalização dos Requisitos de Edital (Checklist Automatizado), Criar uma ferramenta interna que \"leia\" os requisitos técnicos do edital", "r": "Carlos Lima", "di": "2026-06-30", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}, {"c": "AC0001", "o": "Modelo de Gestão", "n": 1, "k": "Modelo de Gestão KR-01", "d": "Redesenho do Organograma (Estrutura Base desejada)", "r": "Rafael Bogo", "di": "2026-02-27", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-01-20", "atr": false}, {"c": "AC0002", "o": "Modelo de Gestão", "n": 1, "k": "Modelo de Gestão KR-01", "d": "Matriz de Alçadas e Delegação (Quem decide o quê?) com foco na Resolução do Cliente", "r": "Michael Felipe Albertoni", "di": "2026-06-30", "dr": "2026-08-31", "nr": 2, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-07-28", "atr": true}, {"c": "AC0003", "o": "Modelo de Gestão", "n": 1, "k": "Modelo de Gestão KR-01", "d": "Mapeamento de Competências (CHA) + Revisão e padronização da descrição de todos os cargos", "r": "Noélle Salles", "di": "2026-08-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída", "pct": 100, "dc": "2026-08-31", "atr": false}, {"c": "AC0004", "o": "Modelo de Gestão", "n": 1, "k": "Modelo de Gestão KR-01", "d": "Diagnóstico Individual dos Gestores (Quem está pronto? Onde estão os GAPs?) (Descobre o x%)", "r": "Noélle Salles", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0001", "o": "Modelo de Gestão", "n": 2, "k": "Modelo de Gestão KR-02", "d": "1. Identificar os rituais e rotinas de gestão existentes e seu objetivo", "r": "Michael Felipe Albertoni", "di": "2026-04-30", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-05-06", "atr": true}, {"c": "AC0002", "o": "Modelo de Gestão", "n": 2, "k": "Modelo de Gestão KR-02", "d": "2. Mapeamento e Definição da Cadência de Governança", "r": "Michael Felipe Albertoni", "di": "2026-07-31", "dr": null, "nr": 0, "concl": true, "canc": false, "ini": true, "farol": "Concluída fora do prazo", "pct": 100, "dc": "2026-08-17", "atr": true}, {"c": "AC0003", "o": "Modelo de Gestão", "n": 2, "k": "Modelo de Gestão KR-02", "d": "3. Padronização de entregáveis dos rituais de gestão (Objetivo, pauta, plano de ação, responsabilização e acompanhamento)", "r": "Michael Felipe Albertoni", "di": "2026-08-31", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 80, "dc": null, "atr": false}, {"c": "AC0004", "o": "Modelo de Gestão", "n": 2, "k": "Modelo de Gestão KR-02", "d": "4. Conectar rituais com os indicadores estratégicos (Pauta baseada em dados, NPS, SLA)", "r": "Michael Felipe Albertoni", "di": "2026-05-29", "dr": "2026-08-31", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 80, "dc": null, "atr": false}, {"c": "AC0005", "o": "Modelo de Gestão", "n": 2, "k": "Modelo de Gestão KR-02", "d": "5. Implantação do acompanhamento de Aderência (Revisão das ações do ritual anterior, índice de aderência 80%)", "r": "Michael Felipe Albertoni", "di": "2026-09-30", "dr": null, "nr": 0, "concl": false, "canc": false, "ini": false, "farol": "Fora do prazo", "pct": null, "dc": null, "atr": false}, {"c": "AC0001", "o": "Modelo de Gestão", "n": 3, "k": "Modelo de Gestão KR-03", "d": "1. Modelagem Financeira dos \"Gatilhos\" (Viabilidade)", "r": "Michael Felipe Albertoni", "di": "2026-07-31", "dr": "2026-09-30", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0002", "o": "Modelo de Gestão", "n": 3, "k": "Modelo de Gestão KR-03", "d": "2. Matriz de Metas, Processos x Resultados x Indicadores de clientes", "r": "Michael Felipe Albertoni", "di": "2026-07-31", "dr": "2026-09-30", "nr": 1, "concl": false, "canc": false, "ini": true, "farol": "Atrasada", "pct": 50, "dc": null, "atr": false}, {"c": "AC0003", "o": "Modelo de Gestão", "n": 3, "k": "Modelo de Gestão KR-03", "d": "3. Validação Jurídica do modelo de Remuneração variável", "r": "Israel Bogo", "di": "2026-08-31", "dr": "2026-10-31", "nr": 1, "concl": false, "canc": false, "ini": false, "farol": "Atrasada", "pct": null, "dc": null, "atr": false}]}</script>
+<script>
+const DB=JSON.parse(document.getElementById('dados').textContent);
+const HOJE=DB.meta.ref, FIM=DB.meta.fimJanela;
+const S={v:'rep',o:null,h:'data'};
+const d2=n=>String(n).padStart(2,'0');
+const fmt=s=>{if(!s)return '—';const d=new Date(s+'T00:00:00');return d2(d.getDate())+'/'+d2(d.getMonth()+1);};
+const fmtA=s=>{if(!s)return '';const d=new Date(s+'T00:00:00');return d2(d.getDate())+'/'+d2(d.getMonth()+1)+'/'+d.getFullYear();};
+const prazo=i=>S.v==='rep'?(i.dr||i.di):i.di;
+const SIGLA={'Modelo de Gestão':'MG','Comercial, Marketing e Soluções':'CM','Clientes':'CL','Eficiência Operacional e Processos':'EO','Cultura, Pessoas e Comunicação':'CP','Inovação e Tecnologia':'IT','Financeiro':'FI'};
+const ORDEM={'Modelo de Gestão':1,'Comercial, Marketing e Soluções':2,'Clientes':3,'Eficiência Operacional e Processos':4,'Cultura, Pessoas e Comunicação':5,'Inovação e Tecnologia':6,'Financeiro':7};
+const CURTO={'Comercial, Marketing e Soluções':'Comercial e Marketing','Eficiência Operacional e Processos':'Eficiência Operacional','Cultura, Pessoas e Comunicação':'Cultura e Pessoas','Inovação e Tecnologia':'Inovação e Tecnologia'};
+function cat(i){
+  if(i.canc)return 'canc';
+  if(i.concl)return 'concl';
+  const p=prazo(i); if(!p)return 'fut';
+  if(p<HOJE)return 'venc';
+  if(p<=FIM)return i.ini?'jan':'nao';
+  return 'fut';
+}
+function bloco(itens){
+  const b={concl:0,venc:0,nao:0,jan:0,canc:0,fut:0};
+  itens.forEach(i=>b[cat(i)]++);
+  b.tot=itens.length; b.base=b.tot-b.canc;
+  b.pct=b.base?Math.round(100*b.concl/b.base):0;
+  b.cor=b.venc?'fora':(b.nao?'aten':'dentro');
+  return b;
+}
+function barras(b){
+  const W=n=>`width:${(100*n/b.tot).toFixed(2)}%`;
+  return `<div class="bar">${b.concl?`<i class="c" style="${W(b.concl)}"></i>`:''}${b.venc?`<i class="v" style="${W(b.venc)}"></i>`:''}${b.nao?`<i class="n" style="${W(b.nao)}"></i>`:''}${b.jan+b.fut?`<i class="j" style="${W(b.jan+b.fut)}"></i>`:''}${b.canc?`<i class="x" style="${W(b.canc)}"></i>`:''}</div>`;
+}
+function frase(b){
+  const p=[];
+  if(b.venc)p.push(`<b>${b.venc} atrasada${b.venc>1?'s':''}</b>`);
+  if(b.nao)p.push(`<i>${b.nao} não iniciada${b.nao>1?'s':''}</i>`);
+  if(!p.length)p.push('sem atraso');
+  return p.join(' · ');
+}
+// Selo FOCO: item so entra se a entrega fecha na janela e cruza um sinal de risco.
+// Sinal 1, do KR: fecha na janela (nada aberto depois dela) e nenhuma concluida ainda.
+// Sinal 2, do item: repactuada duas vezes ou mais.
+// Sinal 3, do KR: e a unica iniciativa ainda aberta.
+// Empate: menor percentual do KR, depois prazo mais proximo. Teto de 3 itens.
+const TETO_FOCO=3;
+function marcarFoco(){
+  DB.itens.forEach(i=>i._foco=false);
+  const porKr={};
+  DB.itens.forEach(i=>{(porKr[i.k]=porKr[i.k]||[]).push(i);});
+  const cand=[];
+  Object.values(porKr).forEach(g=>{
+    const abertas=g.filter(i=>['venc','nao','jan','fut'].includes(i._c));
+    const fecha=abertas.length>0 && !abertas.some(i=>i._c==='fut');
+    const base=g.filter(i=>!i.canc), feitas=base.filter(i=>i.concl).length;
+    const pct=base.length?100*feitas/base.length:0;
+    const s1=fecha && feitas===0, s3=fecha && abertas.length===1;
+    g.forEach(i=>{
+      if(!['venc','nao','jan'].includes(i._c))return;
+      const s=(s1?1:0)+(i.nr>1?1:0)+(s3?1:0);
+      if(s>0)cand.push({i,s,pct});
+    });
+  });
+  cand.sort((a,b)=>b.s-a.s||a.pct-b.pct||(prazo(a.i)||'').localeCompare(prazo(b.i)||''));
+  cand.slice(0,TETO_FOCO).forEach(c=>c.i._foco=true);
+}
+
+function render(){
+  document.getElementById('subhead').textContent='Posição Actio '+fmt(HOJE)+' · janela até '+fmt(FIM);
+  const objs=[...new Set(DB.itens.map(i=>i.o))]
+    .map(o=>({o,b:bloco(DB.itens.filter(i=>i.o===o))}))
+    .sort((a,b)=>(ORDEM[a.o]||99)-(ORDEM[b.o]||99));
+  const g=bloco(DB.itens);
+  document.getElementById('placar').innerHTML=
+    `<button class="tile geral" data-todos="1" aria-pressed="${S.o===null}"><div class="o">P.E. Consolidado</div>
+      <div class="dn">${S.o?'voltar à visão geral':g.tot+' iniciativas · '+DB.meta.krs+' KR'+(g.canc?' · '+g.canc+' canceladas':'')}</div>
+      <div class="p">${g.pct}%<small>${g.concl} de ${g.base}</small></div>${barras(g)}<div class="st">${frase(g)}</div></button>`+
+    objs.map(x=>`<button class="tile ${x.b.cor}" data-o="${x.o}" aria-pressed="${S.o===x.o}">
+      <div class="o"><span class="ix">${ORDEM[x.o]||''}</span>${CURTO[x.o]||x.o}</div><div class="dn">${DB.meta.donos[x.o]||'—'}</div>
+      <div class="p">${x.b.pct}%<small>${x.b.concl} de ${x.b.base}</small></div>${barras(x.b)}<div class="st">${frase(x.b)}</div></button>`).join('');
+
+  DB.itens.forEach(i=>i._c=cat(i));
+  marcarFoco();
+  const sel=S.o?DB.itens.filter(i=>i.o===S.o):DB.itens;
+  const venc=sel.filter(i=>i._c==='venc'), nao=sel.filter(i=>i._c==='nao'), jan=sel.filter(i=>i._c==='jan');
+  document.getElementById('ttl').firstChild.textContent=S.o?('Quem está fora · '+S.o+' '):'Quem está fora ';
+  document.getElementById('cnt').textContent=venc.length+' atrasadas · '+(nao.length+jan.length)+' vencem até '+fmt(FIM)+', sendo '+nao.length+' sem começar';
+  const li=i=>`<li class="${i._foco?'foco-on':''}"><span class="kr">${SIGLA[i.o]||''} ${i.k.replace(i.o,'').trim()}</span>
+    <span class="tx">${i.d.slice(0,92)}${i.d.length>92?'…':''}<em>${i.r}${i.pct!=null?' · '+i.pct+'%':''}</em></span>
+    ${i._foco?'<span class="foco">FOCO</span>':''}
+    <span class="dt"><b>${fmt(i.di)}</b>${i.dr?'<s>→ <u>'+fmt(i.dr)+'</u>'+(i.nr>1?'<span class="nx">'+i.nr+'x</span>':'')+'</s>':''}</span></li>`;
+  const lista=(t,cls,arr,vazio)=>`<div class="blk ${cls}"><h3>${t} · ${arr.length}</h3>${arr.length?'<ul class="lst">'+arr.sort((a,b)=>(prazo(a)||'').localeCompare(prazo(b)||'')).map(li).join('')+'</ul>':'<div class="empty">'+vazio+'</div>'}</div>`;
+  document.getElementById('cols').innerHTML=
+    '<div>'+lista('Atrasadas','',venc,'Nada atrasado.')+
+    '<div style="height:16px"></div>'+lista('Vencem na janela e não começaram','n',nao,'Tudo na janela já foi iniciado.')+'</div>'+
+    lista('Vencem na janela, em execução','j',jan,'Nada mais vence na janela.');
+
+  const ORD={
+    data:(a,b)=>(b.dc||'').localeCompare(a.dc||''),
+    objetivo:(a,b)=>(ORDEM[a.o]||99)-(ORDEM[b.o]||99)||a.n-b.n||(b.dc||'').localeCompare(a.dc||''),
+    kr:(a,b)=>a.n-b.n||(ORDEM[a.o]||99)-(ORDEM[b.o]||99)||(b.dc||'').localeCompare(a.dc||'')};
+  const feitas=sel.filter(i=>i.concl).sort(ORD[S.h]);
+  const noPrazo=feitas.filter(i=>!i.atr).length;
+  document.getElementById('hist').innerHTML=
+    `<summary>Já concluídas · ${feitas.length} de ${sel.filter(i=>!i.canc).length}`+
+    `<span style="font-family:var(--mono);font-weight:400;font-size:10px;color:var(--muted);margin:0 6px">·</span>`+
+    `<span style="font-family:var(--mono);font-weight:400;font-size:10px;letter-spacing:.03em;text-transform:none;color:var(--muted);margin-left:8px">`+
+    `${noPrazo} no prazo, ${feitas.length-noPrazo} fora do prazo. Clique para abrir.</span></summary>`+
+    (feitas.length?'<div class="ord"><span>Ordenar por</span>'+
+      ['objetivo','kr','data'].map(k=>`<button data-h="${k}" aria-pressed="${S.h===k}">${k==='kr'?'KR':k}</button>`).join('')+'</div>'+
+      '<ul class="lst">'+feitas.map(i=>`<li><span class="kr">${SIGLA[i.o]||''} ${i.k.replace(i.o,'').trim()}</span>
+      <span class="tx">${i.d.slice(0,92)}${i.d.length>92?'…':''}<em>${i.r}</em></span>
+      <span class="dt">${i.atr?'<span class="fora">'+fmt(i.dc)+'</span>':'<span class="ok">'+fmt(i.dc)+'</span>'}<s>previsto ${fmt(i.di)}</s></span></li>`).join('')+'</ul>':'<div class="empty">Nenhuma concluída.</div>');
+
+  document.getElementById('rodape').innerHTML=
+    `Farol conforme a coluna Farol do Actio. Concluído = <b>Concluída + Concluída fora do prazo</b> sobre o total menos canceladas. `+
+    `Prazo inicial = término previsto no Actio; prazo repactuado = data mais futura registrada na TAG. `+
+    `Base: relatório de ações com término previsto até ${fmt(FIM)}, todas marcadas KR Prioritário. Verde não é detalhado..`;
+}
+document.getElementById('placar').addEventListener('click',e=>{
+  if(e.target.closest('.tile[data-todos]')){ S.o=null; render(); return; }
+  const t=e.target.closest('.tile[data-o]'); if(!t)return;
+  S.o=(S.o===t.dataset.o)?null:t.dataset.o; render();
+});
+document.getElementById('segView').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  e.currentTarget.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+  S.v=b.dataset.v; render();
+});
+document.getElementById('hist').addEventListener('click',e=>{
+  const b=e.target.closest('.ord button'); if(!b)return;
+  S.h=b.dataset.h; const d=document.getElementById('hist'); const ab=d.open; render(); d.open=ab;
+});
+document.getElementById('btnPdf').addEventListener('click',()=>window.print());
+document.getElementById('btnCsv').addEventListener('click',()=>{
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const cab=['Objetivo','Dono do objetivo','KR','Entrega','Responsavel','Farol','Situacao no farol',
+             'Prazo inicial','Prazo repactuado','Repactuacoes','Termino realizado','% real','Foco'];
+  const SIT={concl:'Concluída',venc:'Atrasada',nao:'Na janela, não iniciada',jan:'Na janela, em execução',canc:'Cancelada',fut:'Fora da janela'};
+  const linhas=DB.itens.map(i=>[i.o,DB.meta.donos[i.o]||'',i.k.replace(i.o,'').trim(),i.d,i.r,i.farol||'',
+    SIT[i._c]||'',fmtA(i.di),fmtA(i.dr),i.nr,fmtA(i.dc),i.pct==null?'':i.pct,i._foco?'FOCO':'']);
+  const csv='\ufeff'+[cab,...linhas].map(l=>l.map(q).join(';')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='farol_pe_'+HOJE+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+});
+render();
+</script>
+</body></html>
