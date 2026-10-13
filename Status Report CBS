@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Controle - CBS 2027</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS para leitura de planilhas XLSX -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Chart.js para visualizações -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+
+  <!-- Header / Topbar -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-30 px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="p-2.5 bg-indigo-600/30 text-indigo-400 rounded-lg border border-indigo-500/30">
+        <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-bold text-white tracking-wide">Controle de Projeto: CBS 2027</h1>
+          <span class="bg-indigo-500/20 text-indigo-300 text-[10px] px-2 py-0.5 rounded font-mono border border-indigo-500/30">Aba: Cronograma V2</span>
+        </div>
+        <p class="text-xs text-slate-400" id="status-sincronizacao">A carregar dados da folha de cálculo...</p>
+      </div>
+    </div>
+
+    <!-- Controles de Atualização -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="btn-sync-sharepoint" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition font-medium shadow">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Atualizar Dados
+      </button>
+
+      <label class="bg-slate-700 hover:bg-slate-600 cursor-pointer text-slate-200 text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition">
+        <i data-lucide="file-up" class="w-4 h-4"></i> Carregar .xlsx Local
+        <input type="file" id="file-input" accept=".xlsx, .xls, .csv" class="hidden">
+      </label>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-6">
+
+    <!-- Painel de Filtros e Parametrização -->
+    <section class="bg-slate-800 border border-slate-700/80 rounded-xl p-5 shadow-lg">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-700/60 pb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4 text-indigo-400"></i>
+          <h2 class="text-xs font-semibold tracking-wider uppercase text-slate-300">Linha de Base, Parâmetros e Filtros</h2>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="card-filter-indicator" class="hidden text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span id="card-filter-text">Filtro por Card ativo</span>
+            <button id="btn-clear-card-filter" class="hover:text-white font-bold ml-1">&times;</button>
+          </span>
+          <span class="text-xs text-slate-400">Tarefas filtradas: <strong id="lbl-count-tasks" class="text-indigo-400">0</strong></span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Modo de Avanço -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Regra de Ponderação / Avanço</label>
+          <select id="select-calc-mode" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+            <option value="duration_binary" selected>Peso por Duração (Regra 0/100%)</option>
+            <option value="task_count">Por Quantidade de Tarefas (1/N)</option>
+            <option value="custom_weight">Peso Determinado / Coluna M</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1" id="lbl-calc-desc">Considera dias úteis; tarefas só pontuam se concluídas.</p>
+        </div>
+
+        <!-- Data de Corte do Status / Linha de Base -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5 flex justify-between">
+            <span>Data de Corte (Status Date)</span>
+            <button id="btn-reset-status-date" class="text-[10px] text-indigo-400 hover:underline">Hoje</button>
+          </label>
+          <input type="date" id="input-status-date" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" title="Data base para aferição da Linha de Base e Atrasos">
+          <p class="text-[10px] text-slate-500 mt-1">Data de referência para calcular o Previsto.</p>
+        </div>
+
+        <!-- Filtro Responsável -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Responsável</label>
+          <select id="filter-responsavel" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+            <option value="">Todos os Responsáveis</option>
+          </select>
+        </div>
+
+        <!-- Filtro Frente -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5">Frente de Atuação</label>
+          <select id="filter-frente" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+            <option value="">Todas as Frentes</option>
+          </select>
+        </div>
+
+        <!-- Filtro de Intervalo de Datas (Range) -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5 flex justify-between">
+            <span>Intervalo de Datas (Janela)</span>
+            <button id="btn-clear-dates" class="text-[10px] text-indigo-400 hover:underline">Limpar</button>
+          </label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <input type="date" id="filter-date-start" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" title="Data Início">
+            <input type="date" id="filter-date-end" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500" title="Data Fim">
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Filtra tarefas previstas na janela.</p>
+        </div>
+      </div>
+
+      <!-- Toggles Auxiliares -->
+      <div class="flex flex-wrap items-center gap-6 mt-4 pt-3 border-t border-slate-700/50">
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+          <input type="checkbox" id="chk-late-only" class="rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-0">
+          <span class="flex items-center gap-1 text-rose-400 font-medium">
+            <i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i> Apenas Términos Vencidos (Em Atraso)
+          </span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+          <input type="checkbox" id="chk-milestones-only" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
+          <span class="flex items-center gap-1 text-amber-400">
+            <i data-lucide="flag" class="w-3.5 h-3.5"></i> Apenas Marcos Críticos
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Cards de Indicadores: LINHA DE BASE vs REALIZADO vs DESVIO -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      
+      <!-- 1. Avanço Previsto (Linha de Base) -->
+      <div id="card-kpi-planned" class="kpi-card bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow cursor-pointer transition hover:border-blue-500 relative select-none" title="Clique para filtrar tarefas previstas para conclusão até a data de corte">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-medium uppercase text-blue-400">Previsto (Linha de Base)</p>
+            <h3 class="text-2xl font-extrabold text-blue-300 mt-1" id="kpi-planned-pct">0.0%</h3>
+          </div>
+          <div class="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
+            <i data-lucide="calendar-check" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="w-full bg-slate-700/60 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div id="kpi-planned-bar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2" id="kpi-planned-sub">0 tarefas planejadas</p>
+      </div>
+
+      <!-- 2. Avanço Realizado (Executado) -->
+      <div id="card-kpi-real" class="kpi-card bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow cursor-pointer transition hover:border-emerald-500 relative select-none" title="Clique para filtrar apenas tarefas concluídas">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-medium uppercase text-emerald-400">Avanço Realizado</p>
+            <h3 class="text-2xl font-extrabold text-emerald-300 mt-1" id="kpi-real-pct">0.0%</h3>
+          </div>
+          <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
+            <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <div class="w-full bg-slate-700/60 rounded-full h-1.5 mt-3 overflow-hidden">
+          <div id="kpi-real-bar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2" id="kpi-real-sub">0 tarefas concluídas</p>
+      </div>
+
+      <!-- 3. Desvio Geral (Variance / Gap) -->
+      <div id="card-kpi-variance" class="kpi-card bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow transition relative select-none">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-medium uppercase text-slate-300">Desvio de Cronograma</p>
+            <h3 class="text-2xl font-extrabold mt-1" id="kpi-variance-pct">0.0%</h3>
+          </div>
+          <div id="kpi-variance-icon" class="p-2 bg-slate-700 text-slate-300 rounded-lg">
+            <i data-lucide="git-commit" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <p class="text-xs font-semibold mt-3" id="kpi-variance-status">No plano</p>
+        <p class="text-[11px] text-slate-400 mt-1" id="kpi-variance-detail">0 tarefas de desvio</p>
+      </div>
+
+      <!-- 4. Términos Vencidos (Atraso Crítico) -->
+      <div id="card-kpi-late-finish" class="kpi-card bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow cursor-pointer transition hover:border-rose-500 relative select-none" title="Clique para filtrar apenas tarefas com término vencido">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-medium uppercase text-rose-400">Término Vencido</p>
+            <h3 class="text-2xl font-extrabold text-rose-400 mt-1" id="kpi-late-finish">0</h3>
+          </div>
+          <div class="p-2 bg-rose-500/20 text-rose-400 rounded-lg">
+            <i data-lucide="clock-alert" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <p class="text-[11px] text-rose-300 mt-3">Requer ação imediata</p>
+        <div class="text-[10px] text-rose-400/80 mt-1">Clique para isolar</div>
+      </div>
+
+      <!-- 5. Início Pendente -->
+      <div id="card-kpi-late-start" class="kpi-card bg-slate-800 border border-slate-700/80 rounded-xl p-4 shadow cursor-pointer transition hover:border-amber-500 relative select-none" title="Clique para filtrar apenas tarefas com início atrasado">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-[11px] font-medium uppercase text-amber-400">Início Pendente</p>
+            <h3 class="text-2xl font-extrabold text-amber-400 mt-1" id="kpi-late-start">0</h3>
+          </div>
+          <div class="p-2 bg-amber-500/20 text-amber-400 rounded-lg">
+            <i data-lucide="calendar-x-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-3">Início previsto já venceu</p>
+        <div class="text-[10px] text-amber-400/80 mt-1">Clique para isolar</div>
+      </div>
+
+    </section>
+
+    <!-- Gráficos e Pacotes: Comparativo Previsto vs Realizado -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Gráfico Comparativo: Previsto vs Realizado por Frente ou Responsável -->
+      <div class="lg:col-span-2 bg-slate-800 border border-slate-700/80 rounded-xl p-5 shadow">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <h3 class="text-sm font-semibold tracking-wide uppercase text-slate-300 flex items-center gap-2">
+            <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-400"></i> Comparativo: Previsto vs. Realizado vs. Atrasos
+          </h3>
+          <div class="flex items-center gap-2">
+            <button id="btn-chart-by-resp" class="text-xs px-2.5 py-1 rounded bg-indigo-600 text-white font-medium">Por Responsável</button>
+            <button id="btn-chart-by-frente" class="text-xs px-2.5 py-1 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">Por Frente</button>
+          </div>
+        </div>
+        <div class="h-64">
+          <canvas id="chart-comparativo"></canvas>
+        </div>
+      </div>
+
+      <!-- Barra de Progresso por Pacote/Frente (Previsto vs Realizado) -->
+      <div class="bg-slate-800 border border-slate-700/80 rounded-xl p-5 shadow flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-semibold tracking-wide uppercase text-slate-300 flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Desvio por Pacote/Frente
+            </h3>
+            <span class="text-[10px] text-slate-400"><span class="text-blue-400">■ Prev</span> | <span class="text-emerald-400">■ Real</span></span>
+          </div>
+          <div id="pacotes-progress-list" class="space-y-3.5 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+        <p class="text-[11px] text-slate-500 border-t border-slate-700/60 pt-2 mt-2">
+          Desvio = % Realizado - % Previsto (Linha de Base até a Data de Corte).
+        </p>
+      </div>
+
+    </section>
+
+    <!-- Tabela Detalhada com Previsto, Real e Desvio -->
+    <section class="bg-slate-800 border border-slate-700/80 rounded-xl p-5 shadow">
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="text-sm font-semibold tracking-wide uppercase text-slate-300 flex items-center gap-2">
+            <i data-lucide="table" class="w-4 h-4 text-indigo-400"></i> Cronograma Detalhado (Linha de Base vs. Execução Real)
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">Acompanhamento de início/fim previstos vs realizados e desvio em dias.</p>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs text-slate-400 flex-wrap">
+          <span id="col-m-indicator" class="hidden text-indigo-300 bg-indigo-950 border border-indigo-700/50 px-2 py-0.5 rounded text-[11px]">
+            Coluna M (Pesos Editáveis)
+          </span>
+          <span>
+            <span class="text-emerald-400">● Concluído</span> &nbsp;|&nbsp; 
+            <span class="text-slate-400">● No Prazo</span> &nbsp;|&nbsp; 
+            <span class="text-rose-400">● Atrasada</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[520px] overflow-y-auto rounded-lg border border-slate-700">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-950 text-slate-400 uppercase font-medium sticky top-0 border-b border-slate-700 z-10">
+            <tr>
+              <th class="px-3 py-3 w-14">ID</th>
+              <th class="px-2 py-3 w-10 text-center">Marco</th>
+              <th class="px-3 py-3">Atividade</th>
+              <th class="px-3 py-3">Responsável</th>
+              <th class="px-3 py-3">Frente</th>
+              
+              <!-- Bloco Previsto (Linha de Base) -->
+              <th class="px-3 py-3 text-center bg-blue-950/30 text-blue-300 border-x border-slate-800">
+                Previsto (Início → Fim)
+              </th>
+              <th class="px-2 py-3 text-center bg-blue-950/30 text-blue-300 border-r border-slate-800">Dias</th>
+              
+              <!-- Bloco Real (Executado) -->
+              <th class="px-3 py-3 text-center bg-emerald-950/30 text-emerald-300 border-r border-slate-800">
+                Real (Início → Fim)
+              </th>
+
+              <!-- Peso Coluna M (opcional) -->
+              <th id="th-custom-weight" class="px-2 py-3 text-center hidden bg-indigo-950/60 text-indigo-300 border-r border-indigo-800/40">
+                Peso (M)
+              </th>
+
+              <!-- Desvio e Status -->
+              <th class="px-3 py-3 text-center">Desvio</th>
+              <th class="px-3 py-3 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-slate-700/60 font-normal"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    const SHAREPOINT_DIRECT_URL = "https://terceirizemais-my.sharepoint.com/:x:/g/personal/michael_albertoni_terceirizemais_com_br/IQCKg1PPwhf1T7rTvJTRLU9BAfZ1h8b8V0royYMVr1ADgU0?download=1";
+    const CORS_PROXY_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(SHAREPOINT_DIRECT_URL);
+    const LOCAL_FALLBACK_FILE = "./cronograma.xlsx";
+
+    let rawTasks = [];
+    let chartInstance = null;
+    let chartViewMode = 'responsavel'; // 'responsavel' ou 'frente'
+    let cardFilter = null; // 'planned', 'real', 'late_finish', 'late_start', ou null
+    let statusDate = new Date(); // Por padrão, data atual
+
+    // Inicializa seletor de Data de Corte com a data atual no formato YYYY-MM-DD
+    function toISODate(d) {
+      if (!d) return '';
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    document.getElementById('input-status-date').value = toISODate(statusDate);
+
+    // Função de tratamento de datas robusta com suporte a ano com 2 dígitos
+    function parseDate(val) {
+      if (!val) return null;
+      if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
+      
+      if (typeof val === 'number') {
+        const d = new Date((val - 25569) * 86400 * 1000);
+        return isNaN(d.getTime()) ? null : d;
+      }
+
+      const str = String(val).trim();
+      const parts = str.split('/');
+      if (parts.length === 3) {
+        const p1 = parseInt(parts[0], 10);
+        const p2 = parseInt(parts[1], 10);
+        let p3 = parseInt(parts[2], 10);
+
+        if (p3 < 100) {
+          p3 += 2000;
+        }
+
+        const d = new Date(p3, p1 - 1, p2);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      return null;
+    }
+
+    function formatDate(d) {
+      if (!d) return '-';
+      return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    }
+
+    function processWorkbook(workbook) {
+      let targetSheetName = workbook.SheetNames.find(n => n.trim().toLowerCase().includes('cronograma v2'));
+      if (!targetSheetName) {
+        targetSheetName = workbook.SheetNames[0];
+      }
+
+      const worksheet = workbook.Sheets[targetSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, dateNF: 'mm/dd/yyyy' });
+
+      // Procura linha de Última atualização para sugerir a data de corte se existir
+      for (let i = 0; i < Math.min(5, rows.length); i++) {
+        const r = rows[i] || [];
+        for (let j = 0; j < r.length; j++) {
+          if (String(r[j]).toLowerCase().includes('atualização') && r[j+1]) {
+            const dt = parseDate(r[j+1]);
+            if (dt) {
+              statusDate = dt;
+              document.getElementById('input-status-date').value = toISODate(statusDate);
+            }
+          }
+        }
+      }
+
+      // Localiza cabeçalho
+      let headerIdx = -1;
+      for (let i = 0; i < Math.min(10, rows.length); i++) {
+        const r = rows[i] || [];
+        if (r.some(cell => String(cell).trim() === 'ID') && r.some(cell => String(cell).toLowerCase().includes('atividade'))) {
+          headerIdx = i;
+          break;
+        }
+      }
+
+      const startIdx = headerIdx !== -1 ? headerIdx + 1 : 5;
+      const tasks = [];
+
+      for (let i = startIdx; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 4) continue;
+
+        const id = String(r[0] || '').trim();
+        const marco = String(r[1] || '').trim().toUpperCase() === 'S';
+        const atividade = String(r[2] || '').trim();
+        const responsavel = String(r[3] || '').trim();
+        const inicioPrev = parseDate(r[4]);
+        const terminoPrev = parseDate(r[5]);
+        const diasUteis = parseFloat(r[6]) || 1;
+        const inicioReal = parseDate(r[7]);
+        const terminoReal = parseDate(r[8]);
+        const status = String(r[9] || '').trim();
+        const frente = String(r[11] || '').trim();
+
+        // Leitura da Coluna M (índice 12): Peso manual / ponderado
+        let pesoColM = 1;
+        if (r.length > 12 && r[12] !== undefined && r[12] !== null && String(r[12]).trim() !== '') {
+          const num = parseFloat(String(r[12]).replace(',', '.'));
+          if (!isNaN(num) && num > 0) {
+            pesoColM = num;
+          }
+        }
+
+        // Ignora nós de agrupamento principais (1.0, 2.0, etc.)
+        const isHeaderNode = id.endsWith('.0') || id.endsWith('.00') || (!id.includes('.') && id !== '');
+        if (!atividade || atividade.toLowerCase().includes('cronograma geral') || isHeaderNode) {
+          continue;
+        }
+
+        tasks.push({
+          id: id || `#${i}`,
+          marco,
+          atividade,
+          responsavel: responsavel || 'Não Definido',
+          frente: frente || 'Outros / Geral',
+          inicioPrev,
+          terminoPrev,
+          diasUteis,
+          inicioReal,
+          terminoReal,
+          status: status || 'Não iniciado',
+          pesoManual: pesoColM
+        });
+      }
+
+      rawTasks = tasks;
+      populateFilters(rawTasks);
+      render();
+    }
+
+    function populateFilters(tasks) {
+      const respSet = new Set();
+      const frenteSet = new Set();
+
+      tasks.forEach(t => {
+        const nomes = t.responsavel.split(/ e |, |\//);
+        nomes.forEach(n => {
+          const limpo = n.trim();
+          if (limpo && limpo !== '-' && limpo !== 'Não Definido') respSet.add(limpo);
+        });
+
+        if (t.frente) frenteSet.add(t.frente);
+      });
+
+      const selResp = document.getElementById('filter-responsavel');
+      const curResp = selResp.value;
+      selResp.innerHTML = '<option value="">Todos os Responsáveis</option>';
+      Array.from(respSet).sort().forEach(r => selResp.innerHTML += `<option value="${r}">${r}</option>`);
+      selResp.value = curResp;
+
+      const selFrente = document.getElementById('filter-frente');
+      const curFrente = selFrente.value;
+      selFrente.innerHTML = '<option value="">Todas as Frentes</option>';
+      Array.from(frenteSet).sort().forEach(f => selFrente.innerHTML += `<option value="${f}">${f}</option>`);
+      selFrente.value = curFrente;
+    }
+
+    window.atualizarPeso = function(taskId, novoValor) {
+      const val = parseFloat(novoValor);
+      if (isNaN(val) || val < 0) return;
+      const t = rawTasks.find(item => item.id === taskId);
+      if (t) {
+        t.pesoManual = val;
+        render();
+      }
+    };
+
+    function render() {
+      const mode = document.getElementById('select-calc-mode').value;
+      const respFilter = document.getElementById('filter-responsavel').value;
+      const frenteFilter = document.getElementById('filter-frente').value;
+      const lateOnly = document.getElementById('chk-late-only').checked;
+      const milestoneOnly = document.getElementById('chk-milestones-only').checked;
+
+      // Data de Corte ativa
+      const statusDateInputVal = document.getElementById('input-status-date').value;
+      if (statusDateInputVal) {
+        statusDate = new Date(statusDateInputVal + 'T23:59:59');
+      }
+
+      // Intervalo de Datas
+      const dateStartVal = document.getElementById('filter-date-start').value;
+      const dateEndVal = document.getElementById('filter-date-end').value;
+      const filterStart = dateStartVal ? new Date(dateStartVal + 'T00:00:00') : null;
+      const filterEnd = dateEndVal ? new Date(dateEndVal + 'T23:59:59') : null;
+
+      const descMap = {
+        duration_binary: "Considera dias úteis; pontua apenas tarefas 100% concluídas (regra 0/100).",
+        task_count: "Todas as tarefas possuem peso igual (1/N).",
+        custom_weight: "Ponderação pela Coluna M da folha de cálculo ou parâmetros informados na tabela."
+      };
+      document.getElementById('lbl-calc-desc').innerText = descMap[mode];
+
+      // Controlo de visibilidade da coluna M
+      const isCustomWeightMode = mode === 'custom_weight';
+      const thCustomWeight = document.getElementById('th-custom-weight');
+      const colMIndicator = document.getElementById('col-m-indicator');
+      if (isCustomWeightMode) {
+        thCustomWeight.classList.remove('hidden');
+        colMIndicator.classList.remove('hidden');
+      } else {
+        thCustomWeight.classList.add('hidden');
+        colMIndicator.classList.add('hidden');
+      }
+
+      // Calcula indicadores dinâmicos de atraso e previsto para cada tarefa com base na data de corte
+      rawTasks.forEach(t => {
+        const isConcluido = t.status.toLowerCase() === 'concluído';
+        
+        // Prevista para conclusão até a data de corte?
+        t.previstaAteCorte = t.terminoPrev && t.terminoPrev <= statusDate;
+
+        // Atraso de término
+        t.atrasoTermino = false;
+        t.diasAtraso = 0;
+        if (!isConcluido && t.terminoPrev && t.terminoPrev < statusDate) {
+          t.atrasoTermino = true;
+          t.diasAtraso = Math.ceil((statusDate - t.terminoPrev) / (1000 * 60 * 60 * 24));
+        }
+
+        // Atraso de início
+        t.atrasoInicio = false;
+        if (t.status.toLowerCase() === 'não iniciado' && t.inicioPrev && t.inicioPrev < statusDate) {
+          t.atrasoInicio = true;
+        }
+
+        // Desvio de término em dias para a tabela
+        if (isConcluido) {
+          if (t.terminoReal && t.terminoPrev) {
+            t.desvioDias = Math.round((t.terminoReal - t.terminoPrev) / (1000 * 60 * 60 * 24));
+          } else {
+            t.desvioDias = 0;
+          }
+        } else {
+          if (t.atrasoTermino) {
+            t.desvioDias = t.diasAtraso; // Positivo indica dias de atraso
+          } else if (t.terminoPrev) {
+            t.desvioDias = -Math.round((t.terminoPrev - statusDate) / (1000 * 60 * 60 * 24)); // Negativo indica dias restantes
+          } else {
+            t.desvioDias = null;
+          }
+        }
+      });
+
+      updateCardHighlight();
+
+      // Aplicação dos Filtros
+      const filtered = rawTasks.filter(t => {
+        if (respFilter && !t.responsavel.toLowerCase().includes(respFilter.toLowerCase())) return false;
+        if (frenteFilter && t.frente !== frenteFilter) return false;
+        if (lateOnly && !t.atrasoTermino) return false;
+        if (milestoneOnly && !t.marco) return false;
+
+        // Filtro por clique em Cartões de KPI
+        if (cardFilter === 'planned' && !t.previstaAteCorte) return false;
+        if (cardFilter === 'real' && t.status.toLowerCase() !== 'concluído') return false;
+        if (cardFilter === 'late_finish' && !t.atrasoTermino) return false;
+        if (cardFilter === 'late_start' && !t.atrasoInicio) return false;
+
+        // Intervalo de Datas
+        if (filterStart && (!t.terminoPrev || t.terminoPrev < filterStart)) return false;
+        if (filterEnd && (!t.inicioPrev || t.inicioPrev > filterEnd)) return false;
+
+        return true;
+      });
+
+      document.getElementById('lbl-count-tasks').innerText = filtered.length;
+
+      // Cálculo Ponderado Geral: PREVISTO vs REALIZADO vs DESVIO
+      let totalW = 0;
+      let plannedW = 0;
+      let realW = 0;
+      let countPlanned = 0;
+      let countReal = 0;
+      let countLateFinish = 0;
+      let countLateStart = 0;
+
+      filtered.forEach(t => {
+        const isDone = t.status.toLowerCase() === 'concluído';
+        if (t.previstaAteCorte) countPlanned++;
+        if (isDone) countReal++;
+        if (t.atrasoTermino) countLateFinish++;
+        if (t.atrasoInicio) countLateStart++;
+
+        let w = (mode === 'duration_binary') ? t.diasUteis : (mode === 'custom_weight' ? t.pesoManual : 1);
+        totalW += w;
+        if (t.previstaAteCorte) plannedW += w;
+        if (isDone) realW += w;
+      });
+
+      const pctPlanned = totalW > 0 ? ((plannedW / totalW) * 100).toFixed(1) : '0.0';
+      const pctReal = totalW > 0 ? ((realW / totalW) * 100).toFixed(1) : '0.0';
+      const variancePct = (parseFloat(pctReal) - parseFloat(pctPlanned)).toFixed(1);
+
+      // Atualiza os Cards de Linha de Base
+      document.getElementById('kpi-planned-pct').innerText = `${pctPlanned}%`;
+      document.getElementById('kpi-planned-bar').style.width = `${pctPlanned}%`;
+      document.getElementById('kpi-planned-sub').innerText = `${countPlanned} de ${filtered.length} tarefas previstas`;
+
+      document.getElementById('kpi-real-pct').innerText = `${pctReal}%`;
+      document.getElementById('kpi-real-bar').style.width = `${pctReal}%`;
+      document.getElementById('kpi-real-sub').innerText = `${countReal} de ${filtered.length} concluídas`;
+
+      // Card de Desvio
+      const varPctEl = document.getElementById('kpi-variance-pct');
+      const varStatusEl = document.getElementById('kpi-variance-status');
+      const varIconEl = document.getElementById('kpi-variance-icon');
+      const varDetailEl = document.getElementById('kpi-variance-detail');
+
+      const varNum = parseFloat(variancePct);
+      const countDiff = countReal - countPlanned;
+
+      if (varNum < 0) {
+        varPctEl.innerText = `${varNum}%`;
+        varPctEl.className = "text-2xl font-extrabold mt-1 text-rose-400";
+        varStatusEl.innerText = "Atrasado em relação ao plano";
+        varStatusEl.className = "text-xs font-semibold mt-3 text-rose-400";
+        varIconEl.className = "p-2 bg-rose-500/20 text-rose-400 rounded-lg";
+        varDetailEl.innerText = `Saldo: ${countDiff} tarefas (${Math.abs(countDiff)} atrasadas)`;
+      } else if (varNum > 0) {
+        varPctEl.innerText = `+${varNum}%`;
+        varPctEl.className = "text-2xl font-extrabold mt-1 text-emerald-400";
+        varStatusEl.innerText = "Adiantado em relação ao plano";
+        varStatusEl.className = "text-xs font-semibold mt-3 text-emerald-400";
+        varIconEl.className = "p-2 bg-emerald-500/20 text-emerald-400 rounded-lg";
+        varDetailEl.innerText = `Saldo: +${countDiff} tarefas antecipadas`;
+      } else {
+        varPctEl.innerText = "0.0%";
+        varPctEl.className = "text-2xl font-extrabold mt-1 text-blue-400";
+        varStatusEl.innerText = "Em dia com a Linha de Base";
+        varStatusEl.className = "text-xs font-semibold mt-3 text-blue-400";
+        varIconEl.className = "p-2 bg-blue-500/20 text-blue-400 rounded-lg";
+        varDetailEl.innerText = "Execução 100% alinhada com o previsto";
+      }
+
+      document.getElementById('kpi-late-finish').innerText = countLateFinish;
+      document.getElementById('kpi-late-start').innerText = countLateStart;
+
+      renderTable(filtered, isCustomWeightMode);
+      renderChart(filtered, mode);
+      renderPackages(filtered, mode);
+    }
+
+    function updateCardHighlight() {
+      const cards = {
+        planned: document.getElementById('card-kpi-planned'),
+        real: document.getElementById('card-kpi-real'),
+        late_finish: document.getElementById('card-kpi-late-finish'),
+        late_start: document.getElementById('card-kpi-late-start')
+      };
+
+      Object.values(cards).forEach(c => {
+        c.classList.remove('ring-2', 'ring-blue-500', 'ring-emerald-500', 'ring-rose-500', 'ring-amber-500');
+      });
+
+      const ind = document.getElementById('card-filter-indicator');
+      const indText = document.getElementById('card-filter-text');
+
+      if (cardFilter === 'planned') {
+        cards.planned.classList.add('ring-2', 'ring-blue-500');
+        ind.classList.remove('hidden');
+        indText.innerText = "Filtro ativo: Previstas até o corte";
+      } else if (cardFilter === 'real') {
+        cards.real.classList.add('ring-2', 'ring-emerald-500');
+        ind.classList.remove('hidden');
+        indText.innerText = "Filtro ativo: Realizadas / Concluídas";
+      } else if (cardFilter === 'late_finish') {
+        cards.late_finish.classList.add('ring-2', 'ring-rose-500');
+        ind.classList.remove('hidden');
+        indText.innerText = "Filtro ativo: Término Vencido";
+      } else if (cardFilter === 'late_start') {
+        cards.late_start.classList.add('ring-2', 'ring-amber-500');
+        ind.classList.remove('hidden');
+        indText.innerText = "Filtro ativo: Início Pendente";
+      } else {
+        ind.classList.add('hidden');
+      }
+    }
+
+    function renderTable(tasks, showCustomWeight) {
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+
+      if (tasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${showCustomWeight ? 11 : 10}" class="text-center py-8 text-slate-500">Nenhuma atividade corresponde aos filtros selecionados.</td></tr>`;
+        return;
+      }
+
+      tasks.forEach(t => {
+        const isDone = t.status.toLowerCase() === 'concluído';
+        const isRunning = t.status.toLowerCase() === 'em andamento';
+
+        let statusBadge = isDone 
+          ? '<span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[11px] font-medium border border-emerald-500/30">Concluído</span>'
+          : (isRunning 
+            ? '<span class="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded text-[11px] font-medium border border-blue-500/30">Em andamento</span>'
+            : '<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-[11px]">Não iniciado</span>');
+
+        // Badge de Desvio em dias
+        let desvioBadge = '';
+        if (isDone) {
+          if (t.desvioDias > 0) {
+            desvioBadge = `<span class="text-rose-400 font-medium text-[11px]">+${t.desvioDias}d (atrasou)</span>`;
+          } else if (t.desvioDias < 0) {
+            desvioBadge = `<span class="text-emerald-400 font-medium text-[11px]">${t.desvioDias}d (adiantou)</span>`;
+          } else {
+            desvioBadge = `<span class="text-emerald-400 font-medium text-[11px]">No prazo (0d)</span>`;
+          }
+        } else if (t.atrasoTermino) {
+          desvioBadge = `<span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded text-[11px] font-semibold border border-rose-500/30">Atraso: +${t.diasAtraso}d</span>`;
+        } else if (t.atrasoInicio) {
+          desvioBadge = '<span class="text-amber-400 text-[11px]">Início pendente</span>';
+        } else if (t.desvioDias !== null) {
+          desvioBadge = `<span class="text-slate-400 text-[11px]">Faltam ${Math.abs(t.desvioDias)}d</span>`;
+        } else {
+          desvioBadge = '<span class="text-slate-500 text-[11px]">-</span>';
+        }
+
+        const milestoneBadge = t.marco ? '<span class="text-amber-400 font-bold">★</span>' : '<span class="text-slate-600">-</span>';
+
+        const customWeightCell = showCustomWeight 
+          ? `<td class="px-2 py-2 text-center bg-indigo-950/20 border-r border-indigo-800/30">
+               <input type="number" step="0.5" min="0" value="${t.pesoManual}" 
+                      onchange="atualizarPeso('${t.id}', this.value)" 
+                      class="w-14 bg-slate-900 border border-indigo-700/60 rounded px-1 py-0.5 text-center text-indigo-200 text-xs focus:ring-1 focus:ring-indigo-400 focus:outline-none">
+             </td>`
+          : '';
+
+        const realDatesStr = (t.inicioReal || t.terminoReal) 
+          ? `${formatDate(t.inicioReal)} → ${formatDate(t.terminoReal)}`
+          : '<span class="text-slate-600 italic">Não iniciado</span>';
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-700/30 transition border-b border-slate-700/50">
+            <td class="px-3 py-2.5 font-mono text-slate-400">${t.id}</td>
+            <td class="px-2 py-2.5 text-center">${milestoneBadge}</td>
+            <td class="px-3 py-2.5 text-slate-200 font-medium">${t.atividade}</td>
+            <td class="px-3 py-2.5 text-slate-300">${t.responsavel}</td>
+            <td class="px-3 py-2.5 text-slate-400">${t.frente}</td>
+            
+            <!-- Previsto -->
+            <td class="px-3 py-2.5 text-center bg-blue-950/10 text-blue-200 border-x border-slate-800">
+              ${formatDate(t.inicioPrev)} → ${formatDate(t.terminoPrev)}
+            </td>
+            <td class="px-2 py-2.5 text-center bg-blue-950/10 text-slate-300 border-r border-slate-800">${t.diasUteis}</td>
+
+            <!-- Real -->
+            <td class="px-3 py-2.5 text-center bg-emerald-950/10 text-slate-200 border-r border-slate-800">
+              ${realDatesStr}
+            </td>
+
+            ${customWeightCell}
+
+            <!-- Desvio e Status -->
+            <td class="px-3 py-2.5 text-center">${desvioBadge}</td>
+            <td class="px-3 py-2.5 text-center">${statusBadge}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function renderPackages(tasks, mode) {
+      const container = document.getElementById('pacotes-progress-list');
+      container.innerHTML = '';
+      const stats = {};
+
+      tasks.forEach(t => {
+        if (!stats[t.frente]) {
+          stats[t.frente] = { totalW: 0, plannedW: 0, realW: 0 };
+        }
+        const w = (mode === 'duration_binary') ? t.diasUteis : (mode === 'custom_weight' ? t.pesoManual : 1);
+        stats[t.frente].totalW += w;
+        if (t.previstaAteCorte) stats[t.frente].plannedW += w;
+        if (t.status.toLowerCase() === 'concluído') stats[t.frente].realW += w;
+      });
+
+      Object.keys(stats).forEach(frente => {
+        const item = stats[frente];
+        const pctPrev = item.totalW > 0 ? ((item.plannedW / item.totalW) * 100).toFixed(0) : 0;
+        const pctReal = item.totalW > 0 ? ((item.realW / item.totalW) * 100).toFixed(0) : 0;
+        const gap = pctReal - pctPrev;
+
+        let gapBadge = '';
+        if (gap < 0) {
+          gapBadge = `<span class="text-rose-400 font-semibold">${gap}% atraso</span>`;
+        } else if (gap > 0) {
+          gapBadge = `<span class="text-emerald-400 font-semibold">+${gap}% adiant.</span>`;
+        } else {
+          gapBadge = `<span class="text-blue-400">0% desvio</span>`;
+        }
+
+        container.innerHTML += `
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="text-slate-300 font-medium truncate w-44" title="${frente}">${frente}</span>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-blue-400">${pctPrev}% prev</span>
+                <span class="text-emerald-400">${pctReal}% real</span>
+                ${gapBadge}
+              </div>
+            </div>
+            
+            <!-- Barra Dupla: Previsto em azul, Realizado em verde -->
+            <div class="space-y-1">
+              <div class="w-full bg-slate-700/50 h-1.5 rounded-full overflow-hidden" title="Linha de Base Prevista: ${pctPrev}%">
+                <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${pctPrev}%"></div>
+              </div>
+              <div class="w-full bg-slate-700/50 h-1.5 rounded-full overflow-hidden" title="Avanço Realizado: ${pctReal}%">
+                <div class="${gap < 0 ? 'bg-rose-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${pctReal}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function renderChart(tasks, mode) {
+      const map = {};
+
+      if (chartViewMode === 'responsavel') {
+        tasks.forEach(t => {
+          const nomes = t.responsavel.split(/ e |, |\//);
+          nomes.forEach(n => {
+            const nome = n.trim();
+            if (!nome || nome === '-' || nome === 'Não Definido') return;
+            if (!map[nome]) map[nome] = { planned: 0, done: 0, late: 0 };
+            if (t.previstaAteCorte) map[nome].planned++;
+            if (t.status.toLowerCase() === 'concluído') map[nome].done++;
+            if (t.atrasoTermino) map[nome].late++;
+          });
+        });
+      } else {
+        // Modo por Frente
+        tasks.forEach(t => {
+          const f = t.frente || 'Outros';
+          if (!map[f]) map[f] = { planned: 0, done: 0, late: 0 };
+          if (t.previstaAteCorte) map[f].planned++;
+          if (t.status.toLowerCase() === 'concluído') map[f].done++;
+          if (t.atrasoTermino) map[f].late++;
+        });
+      }
+
+      // Ordenação pelos mais críticos
+      const sortedKeys = Object.keys(map).sort((a, b) => map[b].late - map[a].late).slice(0, 8);
+      const ctx = document.getElementById('chart-comparativo').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedKeys,
+          datasets: [
+            {
+              label: 'Previsto (Linha de Base)',
+              data: sortedKeys.map(k => map[k].planned),
+              backgroundColor: '#3b82f6',
+              borderRadius: 4
+            },
+            {
+              label: 'Realizado (Concluído)',
+              data: sortedKeys.map(k => map[k].done),
+              backgroundColor: '#10b981',
+              borderRadius: 4
+            },
+            {
+              label: 'Em Atraso',
+              data: sortedKeys.map(k => map[k].late),
+              backgroundColor: '#f43f5e',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { size: 11 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { display: false }
+            },
+            y: {
+              ticks: { color: '#94a3b8', precision: 0 },
+              grid: { color: '#334155' }
+            }
+          }
+        }
+      });
+    }
+
+    async function carregarDadosExcel(url) {
+      const statusEl = document.getElementById('status-sincronizacao');
+      statusEl.innerText = "A sincronizar dados...";
+      try {
+        const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now());
+        if (!res.ok) throw new Error("Erro HTTP " + res.status);
+        const data = await res.arrayBuffer();
+        const workbook = XLSX.read(data, { type: 'array' });
+        processWorkbook(workbook);
+        statusEl.innerText = `Sincronizado às ${new Date().toLocaleTimeString()} (Aba: Cronograma V2)`;
+      } catch (err) {
+        console.warn("Falha ao carregar URL:", err);
+        statusEl.innerHTML = `<span class="text-amber-400">Falha ao buscar direto. Use o botão de upload ou verifique a Action do GitHub.</span>`;
+      }
+    }
+
+    // Eventos de Filtros e Seletores
+    document.getElementById('select-calc-mode').addEventListener('change', render);
+    document.getElementById('input-status-date').addEventListener('change', render);
+    document.getElementById('filter-responsavel').addEventListener('change', render);
+    document.getElementById('filter-frente').addEventListener('change', render);
+    document.getElementById('chk-late-only').addEventListener('change', render);
+    document.getElementById('chk-milestones-only').addEventListener('change', render);
+    document.getElementById('filter-date-start').addEventListener('change', render);
+    document.getElementById('filter-date-end').addEventListener('change', render);
+
+    document.getElementById('btn-reset-status-date').addEventListener('click', () => {
+      statusDate = new Date();
+      document.getElementById('input-status-date').value = toISODate(statusDate);
+      render();
+    });
+
+    document.getElementById('btn-clear-dates').addEventListener('click', () => {
+      document.getElementById('filter-date-start').value = '';
+      document.getElementById('filter-date-end').value = '';
+      render();
+    });
+
+    // Alternância do gráfico (Por Responsável vs Por Frente)
+    document.getElementById('btn-chart-by-resp').addEventListener('click', function() {
+      chartViewMode = 'responsavel';
+      this.className = "text-xs px-2.5 py-1 rounded bg-indigo-600 text-white font-medium";
+      document.getElementById('btn-chart-by-frente').className = "text-xs px-2.5 py-1 rounded bg-slate-700 text-slate-300 hover:bg-slate-600";
+      render();
+    });
+
+    document.getElementById('btn-chart-by-frente').addEventListener('click', function() {
+      chartViewMode = 'frente';
+      this.className = "text-xs px-2.5 py-1 rounded bg-indigo-600 text-white font-medium";
+      document.getElementById('btn-chart-by-resp').className = "text-xs px-2.5 py-1 rounded bg-slate-700 text-slate-300 hover:bg-slate-600";
+      render();
+    });
+
+    // Interatividade dos Cards de KPI (Filtro por clique)
+    document.getElementById('card-kpi-planned').addEventListener('click', () => {
+      cardFilter = cardFilter === 'planned' ? null : 'planned';
+      render();
+    });
+
+    document.getElementById('card-kpi-real').addEventListener('click', () => {
+      cardFilter = cardFilter === 'real' ? null : 'real';
+      render();
+    });
+
+    document.getElementById('card-kpi-late-finish').addEventListener('click', () => {
+      cardFilter = cardFilter === 'late_finish' ? null : 'late_finish';
+      render();
+    });
+
+    document.getElementById('card-kpi-late-start').addEventListener('click', () => {
+      cardFilter = cardFilter === 'late_start' ? null : 'late_start';
+      render();
+    });
+
+    document.getElementById('btn-clear-card-filter').addEventListener('click', () => {
+      cardFilter = null;
+      render();
+    });
+
+    // Botões de Ação
+    document.getElementById('btn-sync-sharepoint').addEventListener('click', () => {
+      carregarDadosExcel(LOCAL_FALLBACK_FILE);
+    });
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const buffer = evt.target.result;
+          const workbook = XLSX.read(buffer, { type: 'array' });
+          processWorkbook(workbook);
+          document.getElementById('status-sincronizacao').innerText = `Carregado ficheiro local: ${file.name}`;
+        } catch (err) {
+          alert('Erro ao processar ficheiro Excel (.xlsx).');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarDadosExcel(LOCAL_FALLBACK_FILE);
+    });
+  </script>
+</body>
+</html>
